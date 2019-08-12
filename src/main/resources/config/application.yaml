@@ -1,3 +1,8 @@
-spring.application.name=7degrees
-server.port=8080
-spring.profiles.active=dev
+spring:
+  application:
+    name: 7degrees
+  profiles:
+    active: dev
+
+server:
+  port: 8080
