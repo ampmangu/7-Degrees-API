@@ -1,48 +1,70 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        gradlePluginPortal()
+        maven { url "http://repo.spring.io/plugins-release" }
+    }
+    dependencies {
+        classpath "io.spring.gradle:propdeps-plugin:0.0.10.RELEASE"
+    }
+}
 plugins {
-	id 'org.asciidoctor.convert' version '1.5.3'
-	id 'org.springframework.boot' version '2.1.7.RELEASE'
-	id 'java'
+    id 'org.asciidoctor.convert' version '1.5.3'
+    id 'org.springframework.boot' version '2.1.7.RELEASE'
+    id 'java'
+    id "maven"
+    id "idea"
 }
 
 apply plugin: 'io.spring.dependency-management'
+apply plugin: "propdeps"
 
 group = 'com.ampmangu'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '1.8'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+assert System.properties["java.specification.version"] == "1.8"
 
 configurations {
-	developmentOnly
-	runtimeClasspath {
-		extendsFrom developmentOnly
-	}
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+
+ext {
+    set('snippetsDir', file("build/generated-snippets"))
 }
 
 repositories {
-	mavenCentral()
-}
-
-ext {
-	set('snippetsDir', file("build/generated-snippets"))
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+    //jhipster-needle-gradle-repositories - JHipster will add additional repositories
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+
 }
 
 test {
-	outputs.dir snippetsDir
+    outputs.dir snippetsDir
 }
 
 asciidoctor {
-	inputs.dir snippetsDir
-	dependsOn test
+    inputs.dir snippetsDir
+    dependsOn test
 }
