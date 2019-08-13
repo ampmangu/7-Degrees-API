@@ -1,5 +1,6 @@
 package com.ampmangu.degrees;
 
+import com.ampmangu.degrees.config.DefaultProfileUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,7 @@ public class Application implements InitializingBean {
      */
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(Application.class);
+        DefaultProfileUtil.addDefaultProfile(app);
         Environment env = app.run(args).getEnvironment();
         logApplicationStartup(env);
     }
