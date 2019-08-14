@@ -3,6 +3,38 @@ spring:
     name: 7degrees
   profiles:
     active: dev
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:mariadb://localhost:3306/7degrees?useLegacyDatetimeCode=false&serverTimezone=UTC
+    username: root
+    password:
+    hikari:
+      poolName: Hikari
+      auto-commit: false
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    database: MYSQL
+    show-sql: true
+    properties:
+      hibernate.id.new_generator_mappings: true
+      hibernate.connection.provider_disables_autocommit: true
+      hibernate.cache.use_second_level_cache: true
+      hibernate.cache.use_query_cache: false
+      hibernate.generate_statistics: true
+      hibernate.cache.region.factory_class: org.hibernate.cache.ehcache.EhCacheRegionFactory
+      hibernate.jdbc.time_zone: UTC
 
+  liquibase:
+    enabled: true
+#    change-log: classpath:liquibase-changeLog.xml
+#    url: jdbc:mariadb://localhost:3306/7degrees
+#    user: root
+#    password: ''
+#    driver: com.mysql.jdbc.Driver
 server:
   port: 8080
