@@ -1,0 +1,35 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+    <include file="config/liquibase/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>
+    <changeSet author="adrian (generated)" id="1565796474431-1">
+        <createTable tableName="PersonRelation">
+            <column name="leftSideId" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="rightSideId" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="stillValid" type="BIT(1)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="adrian (generated)" id="1565796474431-2">
+        <createTable tableName="person">
+            <column autoIncrement="true" name="id" type="bigint">
+                <constraints primaryKey="true" primaryKeyName="personPK"/>
+            </column>
+            <column name="date_added" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="adrian (generated)" id="1565796474431-3">
+        <addForeignKeyConstraint baseColumnNames="rightSideId" baseTableName="PersonRelation" constraintName="rightSideConstraint" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="person" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="leftSideId" baseTableName="PersonRelation" constraintName="leftSideConstraint" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="person" validate="true"/>
+    </changeSet>
+</databaseChangeLog>

@@ -24,6 +24,7 @@ plugins {
 apply plugin: 'io.spring.dependency-management'
 apply plugin: "propdeps"
 apply plugin: 'org.liquibase.gradle'
+apply plugin: 'java'
 
 group = 'com.ampmangu'
 version = '0.0.1-SNAPSHOT'
@@ -67,33 +68,13 @@ if (!project.hasProperty('runList')) {
 project.ext.diffChangelogFile = "src/main/resources/config/liquibase/changelog/" + new Date().format("yyyyMMddHHmmss") + "_changelog.xml"
 liquibase {
     activities {
-//        diff {
-//            driver 'org.mariadb.jdbc.Driver'
-//            url 'jdbc:mariadb://localhost:3306/7degrees'
-//            referenceUrl 'jdbc:mariadb://localhost:3306/7degrees'
-//            referenceUsername 'root'
-//            username 'root'
-//            password ''
-//        }
         main {
             driver 'org.mariadb.jdbc.Driver'
             url 'jdbc:mariadb://localhost:3306/7degrees'
-            referenceUrl 'jdbc:mariadb://localhost:3306/7degrees'
-            referenceUsername 'root'
             username 'root'
             password ''
             changeLogFile 'src/main/resources/config/liquibase/master.xml'
-            defaultSchemaName ''
-            logLevel 'severe'
-            classpath 'src/main/resources/'
-        }
-        diffLog {
-            driver 'org.mariadb.jdbc.Driver'
-            url 'jdbc:mariadb://localhost:3306/7degrees'
-            username ''
-            password ''
-            changeLogFile project.ext.diffChangelogFile
-            referenceUrl 'hibernate:spring:com.amp.cocome.domain?dialect=org.hibernate.dialect.MySQL5InnoDBDialect&amp;hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy'
+            referenceUrl 'hibernate:spring:com.ampmangu.degrees.domain?dialect=org.hibernate.dialect.H2Dialect&amp;hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy'
             defaultSchemaName ''
             logLevel 'debug'
             classpath "$buildDir/classes/java/main"
@@ -117,6 +98,7 @@ dependencies {
     compile group: 'org.springframework', name: 'spring-context', version: '5.+'
     // UTILS
     implementation "org.apache.commons:commons-lang3"
+    compile 'commons-lang:commons-lang:2.3'
     compile "javax.cache:cache-api"
     //
 
@@ -141,13 +123,17 @@ dependencies {
     liquibaseRuntime "org.liquibase.ext:liquibase-hibernate5:3.6"
     liquibaseRuntime sourceSets.main.compileClasspath
     liquibaseRuntime "org.mariadb.jdbc:mariadb-java-client"
+    liquibaseRuntime('org.liquibase:liquibase-groovy-dsl:2.0.1')
     //
+    liquibaseRuntime sourceSets.main.output // replaces liquibaseRuntime files('src/main')
 }
 
 test {
     outputs.dir snippetsDir
 }
-
+jar {
+    duplicatesStrategy = 'exclude'
+}
 asciidoctor {
     inputs.dir snippetsDir
     dependsOn test
