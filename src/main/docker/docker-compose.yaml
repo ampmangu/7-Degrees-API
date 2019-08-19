@@ -3,7 +3,7 @@ services:
   7degrees-mariadb:
     image: mariadb:10.3.7
     volumes:
-      - ~/volumes/7degrees/P1/mysql/:/var/lib/mysql/
+      - ~/volumes/7degrees/mysql/:/var/lib/mysql/
     environment:
       - MYSQL_USER=root
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes

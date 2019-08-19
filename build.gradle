@@ -4,9 +4,13 @@ buildscript {
         mavenCentral()
         gradlePluginPortal()
         maven { url "http://repo.spring.io/plugins-release" }
+        maven {
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
     }
     dependencies {
         classpath "io.spring.gradle:propdeps-plugin:0.0.10.RELEASE"
+        classpath "org.liquibase:liquibase-gradle-plugin:2.0.1"
     }
 }
 plugins {
@@ -15,10 +19,15 @@ plugins {
     id 'java'
     id "maven"
     id "idea"
+    id "net.ltgt.apt-eclipse" version "0.21"
+    id "net.ltgt.apt-idea" version "0.21"
+    id "org.liquibase.gradle" version "2.0.1"
 }
 
 apply plugin: 'io.spring.dependency-management'
 apply plugin: "propdeps"
+apply plugin: 'org.liquibase.gradle'
+apply plugin: 'java'
 
 group = 'com.ampmangu'
 version = '0.0.1-SNAPSHOT'
@@ -35,7 +44,68 @@ configurations {
         extendsFrom annotationProcessor
     }
 }
+bootRun {
+    systemProperty 'MOVIE_DB_API_KEY', MOVIE_DB_KEY
+}
 
+springBoot {
+    mainClassName = "com.ampmangu.degrees.Application"
+
+}
+
+//test {
+//    useJUnitPlatform()
+//    exclude "**/*IT*", "**/*IntTest*", "**/*CucumberIT*"
+//    testLogging {
+//        events 'FAILED', 'SKIPPED'
+//    }
+//    reports.html.enabled = false
+//}
+
+//task integrationTest(type: Test) {
+//    useJUnitPlatform()
+//    description = "Execute integration tests."
+//    group = "verification"
+//    include "**/*IT*", "**/*IntTest*"
+//    exclude "**/*CucumberIT*"
+//
+//    testLogging {
+//        events 'FAILED', 'SKIPPED'
+//    }
+//    // uncomment if the tests reports are not generated
+//    // see https://github.com/jhipster/generator-jhipster/pull/2771 and https://github.com/jhipster/generator-jhipster/pull/4484
+//    // ignoreFailures true
+//    reports.html.enabled = false
+//}
+
+//task cucumberTest(type: Test) {
+//    description = "Execute cucumber BDD tests."
+//    group = "verification"
+//    include "**/*CucumberIT*"
+//
+//    // uncomment if the tests reports are not generated
+//    // see https://github.com/jhipster/generator-jhipster/pull/2771 and https://github.com/jhipster/generator-jhipster/pull/4484
+//    // ignoreFailures true
+//    reports.html.enabled = false
+//}
+//
+//check.dependsOn cucumberTest
+//
+////check.dependsOn integrationTest
+//task testReport(type: TestReport) {
+//    destinationDir = file("$buildDir/reports/tests")
+//    reportOn test
+//}
+//
+//task integrationTestReport(type: TestReport) {
+//    destinationDir = file("$buildDir/reports/tests")
+//    reportOn integrationTest
+//}
+//
+//task cucumberTestReport(type: TestReport) {
+//    destinationDir = file("$buildDir/reports/tests")
+//    reportOn cucumberTest
+//}
 
 ext {
     set('snippetsDir', file("build/generated-snippets"))
@@ -45,9 +115,38 @@ repositories {
     mavenLocal()
     mavenCentral()
     jcenter()
-    //jhipster-needle-gradle-repositories - JHipster will add additional repositories
+}
+eclipse {
+    sourceSets {
+        main {
+            java {
+                srcDirs += ["build/generated/source/apt/main"]
+            }
+        }
+    }
+}
+if (!project.hasProperty('runList')) {
+    project.ext.runList = 'main'
 }
 
+project.ext.diffChangelogFile = "src/main/resources/config/liquibase/changelog/" + new Date().format("yyyyMMddHHmmss") + "_changelog.xml"
+liquibase {
+    activities {
+        main {
+            driver 'org.mariadb.jdbc.Driver'
+            url 'jdbc:mariadb://localhost:3306/7degrees'
+            username 'root'
+            password ''
+            changeLogFile 'src/main/resources/config/liquibase/master.xml'
+            referenceUrl 'hibernate:spring:com.ampmangu.degrees.domain?dialect=org.hibernate.dialect.H2Dialect&amp;hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy'
+            defaultSchemaName ''
+            logLevel 'debug'
+            classpath "$buildDir/classes/java/main"
+        }
+    }
+
+    runList = project.ext.runList
+}
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     compileOnly 'org.projectlombok:lombok'
@@ -57,16 +156,68 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
     implementation "org.springframework.boot:spring-boot-starter-actuator"
+    compile group: 'org.springframework', name: 'spring-beans', version: '5.+'
+    compile group: 'org.springframework', name: 'spring-orm', version: '5.+'
+    compile group: 'org.springframework', name: 'spring-jdbc', version: '5.+'
+    compile group: 'org.springframework', name: 'spring-context', version: '5.+'
     // UTILS
     implementation "org.apache.commons:commons-lang3"
+    compile 'commons-lang:commons-lang:2.3'
+    compile "javax.cache:cache-api"
+    implementation "javax.transaction:javax.transaction-api"
+    implementation 'org.zalando:problem-spring-web:0.24.0'
     //
+    // DATABASE
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+    implementation "org.mariadb.jdbc:mariadb-java-client"
+    //
+    // HIBERNATE
+    annotationProcessor "org.hibernate:hibernate-jpamodelgen"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5"
+    compile "org.hibernate:hibernate-core"
+    compile "org.hibernate:hibernate-jcache"
+    compile "org.hibernate:hibernate-entitymanager"
+    compile "org.hibernate:hibernate-envers"
+    compile "org.hibernate.validator:hibernate-validator"
+    compile group: 'org.hibernate', name: 'hibernate-ehcache', version: '5.+'
+    //
+    // LIQUIBASE
+    implementation "org.liquibase:liquibase-core"
+    liquibaseRuntime "org.liquibase:liquibase-core"
+    liquibaseRuntime "org.liquibase.ext:liquibase-hibernate5:3.6"
+    liquibaseRuntime sourceSets.main.compileClasspath
+    liquibaseRuntime "org.mariadb.jdbc:mariadb-java-client"
+    liquibaseRuntime('org.liquibase:liquibase-groovy-dsl:2.0.1')
+    //
+    // REST
+    implementation 'com.squareup.retrofit2:retrofit:2.6.1'
+    implementation 'com.squareup.retrofit2:converter-gson:2.6.1'
+    implementation "com.squareup.retrofit2:adapter-rxjava2:2.6.1"
+    implementation("com.squareup.okhttp3:okhttp:4.1.0")
+    implementation "com.squareup.okhttp3:logging-interceptor:4.1.0"
 
+//    implementation "io.reactivex.rxjava3:rxjava"
+//    compile 'com.squareup.retrofit2:adapter-rxjava:2.6.1'
+
+    //
+    liquibaseRuntime sourceSets.main.output // replaces liquibaseRuntime files('src/main')
+    // TEST
+//    testImplementation "io.cucumber:cucumber-junit"
+//    testImplementation "io.cucumber:cucumber-spring"
+    testImplementation "org.junit.jupiter:junit-jupiter-engine"
+    testImplementation "org.junit.vintage:junit-vintage-engine"
+    testImplementation "org.assertj:assertj-core"
+    testImplementation "junit:junit"
+    testImplementation "org.mockito:mockito-core"
+    testImplementation "org.hamcrest:hamcrest-library"
+    //
 }
-
 test {
     outputs.dir snippetsDir
 }
-
+jar {
+    duplicatesStrategy = 'exclude'
+}
 asciidoctor {
     inputs.dir snippetsDir
     dependsOn test
