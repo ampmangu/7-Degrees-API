@@ -36,6 +36,10 @@ public class Person implements Serializable {
     @OneToMany(mappedBy = "leftSidePerson")
     private List<PersonRelation> relations;
 
+    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<ActorData> actorDataList;
+
     public Long getId() {
         return id;
     }
@@ -76,6 +80,14 @@ public class Person implements Serializable {
         this.relations = relations;
     }
 
+    public List<ActorData> getActorDataList() {
+        return actorDataList;
+    }
+
+    public void setActorDataList(List<ActorData> actorDataList) {
+        this.actorDataList = actorDataList;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -83,21 +95,23 @@ public class Person implements Serializable {
 
         Person person = (Person) o;
 
-        if (getId() != null ? !getId().equals(person.getId()) : person.getId() != null) return false;
-        if (getName() != null ? !getName().equals(person.getName()) : person.getName() != null) return false;
-        if (getDateAdded() != null ? !getDateAdded().equals(person.getDateAdded()) : person.getDateAdded() != null)
-            return false;
+        if (!getId().equals(person.getId())) return false;
+        if (!getName().equals(person.getName())) return false;
+        if (!getDateAdded().equals(person.getDateAdded())) return false;
         if (getType() != person.getType()) return false;
-        return getRelations() != null ? getRelations().equals(person.getRelations()) : person.getRelations() == null;
+        if (getRelations() != null ? !getRelations().equals(person.getRelations()) : person.getRelations() != null)
+            return false;
+        return getActorDataList() != null ? getActorDataList().equals(person.getActorDataList()) : person.getActorDataList() == null;
     }
 
     @Override
     public int hashCode() {
-        int result = getId() != null ? getId().hashCode() : 0;
-        result = 31 * result + (getName() != null ? getName().hashCode() : 0);
-        result = 31 * result + (getDateAdded() != null ? getDateAdded().hashCode() : 0);
-        result = 31 * result + (getType() != null ? getType().hashCode() : 0);
+        int result = getId().hashCode();
+        result = 31 * result + getName().hashCode();
+        result = 31 * result + getDateAdded().hashCode();
+        result = 31 * result + getType().hashCode();
         result = 31 * result + (getRelations() != null ? getRelations().hashCode() : 0);
+        result = 31 * result + (getActorDataList() != null ? getActorDataList().hashCode() : 0);
         return result;
     }
 

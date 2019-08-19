@@ -1,7 +1,6 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
-    <include file="config/liquibase/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>
-    <changeSet author="adrian (generated)" id="1565796474431-1">
+    <changeSet author="adrian (generated)" id="1566235943799-1">
         <createTable tableName="PersonRelation">
             <column name="leftSideId" type="bigint">
                 <constraints nullable="true"/>
@@ -12,9 +11,23 @@
             <column name="stillValid" type="BIT(1)"/>
         </createTable>
     </changeSet>
-    <changeSet author="adrian (generated)" id="1565796474431-2">
+    <changeSet author="adrian (generated)" id="1566235943799-2">
+        <createTable tableName="actor_data">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="actor_dataPK"/>
+            </column>
+            <column name="remote_db_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="person_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="adrian (generated)" id="1566235943799-3">
         <createTable tableName="person">
-            <column autoIncrement="true" name="id" type="bigint">
+            <column autoIncrement="true" name="id" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="personPK"/>
             </column>
             <column name="date_added" type="timestamp">
@@ -28,8 +41,14 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="adrian (generated)" id="1565796474431-3">
+    <changeSet author="adrian (generated)" id="1566235943799-4">
+        <addUniqueConstraint columnNames="remote_db_id" constraintName="UC_ACTOR_DATAREMOTE_DB_ID_COL" tableName="actor_data"/>
+    </changeSet>
+    <changeSet author="adrian (generated)" id="1566235943799-5">
         <addForeignKeyConstraint baseColumnNames="rightSideId" baseTableName="PersonRelation" constraintName="rightSideConstraint" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="person" validate="true"/>
         <addForeignKeyConstraint baseColumnNames="leftSideId" baseTableName="PersonRelation" constraintName="leftSideConstraint" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="person" validate="true"/>
+    </changeSet>
+    <changeSet author="adrian (generated)" id="1566235943799-7">
+        <addForeignKeyConstraint baseColumnNames="person_id" baseTableName="actor_data" constraintName="dataOfTheActor" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="person" validate="true"/>
     </changeSet>
 </databaseChangeLog>
