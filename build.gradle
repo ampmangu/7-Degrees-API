@@ -4,6 +4,9 @@ buildscript {
         mavenCentral()
         gradlePluginPortal()
         maven { url "http://repo.spring.io/plugins-release" }
+        maven {
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
     }
     dependencies {
         classpath "io.spring.gradle:propdeps-plugin:0.0.10.RELEASE"
@@ -41,7 +44,68 @@ configurations {
         extendsFrom annotationProcessor
     }
 }
+bootRun {
+    systemProperty 'MOVIE_DB_API_KEY', MOVIE_DB_KEY
+}
 
+springBoot {
+    mainClassName = "com.ampmangu.degrees.Application"
+
+}
+
+test {
+    useJUnitPlatform()
+    exclude "**/*IT*", "**/*IntTest*", "**/*CucumberIT*"
+    testLogging {
+        events 'FAILED', 'SKIPPED'
+    }
+    reports.html.enabled = false
+}
+
+task integrationTest(type: Test) {
+    useJUnitPlatform()
+    description = "Execute integration tests."
+    group = "verification"
+    include "**/*IT*", "**/*IntTest*"
+    exclude "**/*CucumberIT*"
+
+    testLogging {
+        events 'FAILED', 'SKIPPED'
+    }
+    // uncomment if the tests reports are not generated
+    // see https://github.com/jhipster/generator-jhipster/pull/2771 and https://github.com/jhipster/generator-jhipster/pull/4484
+    // ignoreFailures true
+    reports.html.enabled = false
+}
+
+task cucumberTest(type: Test) {
+    description = "Execute cucumber BDD tests."
+    group = "verification"
+    include "**/*CucumberIT*"
+
+    // uncomment if the tests reports are not generated
+    // see https://github.com/jhipster/generator-jhipster/pull/2771 and https://github.com/jhipster/generator-jhipster/pull/4484
+    // ignoreFailures true
+    reports.html.enabled = false
+}
+
+check.dependsOn cucumberTest
+
+check.dependsOn integrationTest
+task testReport(type: TestReport) {
+    destinationDir = file("$buildDir/reports/tests")
+    reportOn test
+}
+
+task integrationTestReport(type: TestReport) {
+    destinationDir = file("$buildDir/reports/tests")
+    reportOn integrationTest
+}
+
+task cucumberTestReport(type: TestReport) {
+    destinationDir = file("$buildDir/reports/tests")
+    reportOn cucumberTest
+}
 
 ext {
     set('snippetsDir', file("build/generated-snippets"))
@@ -100,8 +164,9 @@ dependencies {
     implementation "org.apache.commons:commons-lang3"
     compile 'commons-lang:commons-lang:2.3'
     compile "javax.cache:cache-api"
+    implementation "javax.transaction:javax.transaction-api"
+    implementation 'org.zalando:problem-spring-web:0.24.0'
     //
-
     // DATABASE
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"
     implementation "org.mariadb.jdbc:mariadb-java-client"
@@ -118,16 +183,35 @@ dependencies {
     //
     // LIQUIBASE
     implementation "org.liquibase:liquibase-core"
-//    liquibaseRuntime 'org.liquibase:liquibase-groovy-dsl'
     liquibaseRuntime "org.liquibase:liquibase-core"
     liquibaseRuntime "org.liquibase.ext:liquibase-hibernate5:3.6"
     liquibaseRuntime sourceSets.main.compileClasspath
     liquibaseRuntime "org.mariadb.jdbc:mariadb-java-client"
     liquibaseRuntime('org.liquibase:liquibase-groovy-dsl:2.0.1')
     //
-    liquibaseRuntime sourceSets.main.output // replaces liquibaseRuntime files('src/main')
-}
+    // REST
+    implementation 'com.squareup.retrofit2:retrofit:2.6.1'
+    implementation 'com.squareup.retrofit2:converter-gson:2.6.1'
+    implementation "com.squareup.retrofit2:adapter-rxjava2:2.6.1"
+    implementation("com.squareup.okhttp3:okhttp:4.1.0")
+    implementation "com.squareup.okhttp3:logging-interceptor:4.1.0"
 
+//    implementation "io.reactivex.rxjava3:rxjava"
+//    compile 'com.squareup.retrofit2:adapter-rxjava:2.6.1'
+
+    //
+    liquibaseRuntime sourceSets.main.output // replaces liquibaseRuntime files('src/main')
+    // TEST
+    testImplementation "io.cucumber:cucumber-junit"
+    testImplementation "io.cucumber:cucumber-spring"
+    testImplementation "org.junit.jupiter:junit-jupiter-engine"
+    testImplementation "org.junit.vintage:junit-vintage-engine"
+    testImplementation "org.assertj:assertj-core"
+    testImplementation "junit:junit"
+    testImplementation "org.mockito:mockito-core"
+    testImplementation "org.hamcrest:hamcrest-library"
+    //
+}
 test {
     outputs.dir snippetsDir
 }
