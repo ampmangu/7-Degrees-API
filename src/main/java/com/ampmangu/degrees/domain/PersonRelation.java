@@ -1,25 +1,30 @@
 package com.ampmangu.degrees.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
+@Table(name = "person_relation")
 public class PersonRelation implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @EmbeddedId
     private PersonRelationId id;
 
-    @Column(name = "stillValid")
+    @Column(name = "stillvalid")
     private Boolean stillValid = true;
 
-    @ManyToOne
-    @JoinColumn(name = "leftSideId", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "leftsideid", insertable = false, updatable = false)
+    @JsonIgnoreProperties
     private Person leftSidePerson;
 
-    @ManyToOne
-    @JoinColumn(name = "rightSideId", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rightsideid", insertable = false, updatable = false)
+    @JsonIgnoreProperties
     private Person rightSidePerson;
 
     public PersonRelationId getId() {
@@ -80,10 +85,10 @@ public class PersonRelation implements Serializable {
     public static class PersonRelationId implements Serializable {
         private static final long serialVersionUID = 1L;
 
-        @Column(name = "leftSideId", nullable = false, updatable = false)
+        @Column(name = "leftsideid", nullable = false, updatable = false)
         private Integer leftSideId;
 
-        @Column(name = "rightSideId", nullable = false, updatable = false)
+        @Column(name = "rightsideid", nullable = false, updatable = false)
         private Integer rightSideId;
 
         @Override

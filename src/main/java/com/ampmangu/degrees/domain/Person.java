@@ -1,5 +1,6 @@
 package com.ampmangu.degrees.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -8,6 +9,7 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 
 @Entity
@@ -33,11 +35,19 @@ public class Person implements Serializable {
     @Column(name = "type", nullable = false)
     private TypePerson type = TypePerson.GENERAL;
 
-    @OneToMany(mappedBy = "leftSidePerson")
-    private List<PersonRelation> relations;
+    @Column(name = "remote_db_id")
+    private Integer remoteDbId;
+
+    @OneToMany(mappedBy = "leftSidePerson", cascade = CascadeType.ALL,
+            orphanRemoval = true, fetch = FetchType.EAGER)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    @JsonIgnoreProperties("leftSidePerson")
+    private Set<PersonRelation> relations;
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL,
-            orphanRemoval = true)
+            orphanRemoval = true, fetch = FetchType.EAGER)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    @JsonIgnoreProperties("person")
     private List<ActorData> actorDataList;
 
     public Long getId() {
@@ -72,11 +82,11 @@ public class Person implements Serializable {
         this.type = type;
     }
 
-    public List<PersonRelation> getRelations() {
+    public Set<PersonRelation> getRelations() {
         return relations;
     }
 
-    public void setRelations(List<PersonRelation> relations) {
+    public void setRelations(Set<PersonRelation> relations) {
         this.relations = relations;
     }
 
@@ -86,6 +96,14 @@ public class Person implements Serializable {
 
     public void setActorDataList(List<ActorData> actorDataList) {
         this.actorDataList = actorDataList;
+    }
+
+    public Integer getRemoteDbId() {
+        return remoteDbId;
+    }
+
+    public void setRemoteDbId(Integer remoteDbId) {
+        this.remoteDbId = remoteDbId;
     }
 
     @Override
@@ -99,6 +117,7 @@ public class Person implements Serializable {
         if (!getName().equals(person.getName())) return false;
         if (!getDateAdded().equals(person.getDateAdded())) return false;
         if (getType() != person.getType()) return false;
+        if (!getRemoteDbId().equals(person.getRemoteDbId())) return false;
         if (getRelations() != null ? !getRelations().equals(person.getRelations()) : person.getRelations() != null)
             return false;
         return getActorDataList() != null ? getActorDataList().equals(person.getActorDataList()) : person.getActorDataList() == null;
@@ -110,6 +129,7 @@ public class Person implements Serializable {
         result = 31 * result + getName().hashCode();
         result = 31 * result + getDateAdded().hashCode();
         result = 31 * result + getType().hashCode();
+        result = 31 * result + getRemoteDbId().hashCode();
         result = 31 * result + (getRelations() != null ? getRelations().hashCode() : 0);
         result = 31 * result + (getActorDataList() != null ? getActorDataList().hashCode() : 0);
         return result;

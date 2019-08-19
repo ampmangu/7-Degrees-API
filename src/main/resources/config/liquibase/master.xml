@@ -1,14 +1,16 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
     <changeSet author="adrian (generated)" id="1566235943799-1">
-        <createTable tableName="PersonRelation">
-            <column name="leftSideId" type="bigint">
+        <createTable tableName="person_relation">
+            <column name="leftsideid" type="bigint">
                 <constraints nullable="true"/>
             </column>
-            <column name="rightSideId" type="bigint">
+            <column name="rightsideid" type="bigint">
                 <constraints nullable="true"/>
             </column>
-            <column name="stillValid" type="BIT(1)"/>
+            <column name="stillvalid" type="BIT(1)"/>
         </createTable>
     </changeSet>
     <changeSet author="adrian (generated)" id="1566235943799-2">
@@ -17,7 +19,7 @@
                 <constraints primaryKey="true" primaryKeyName="actor_dataPK"/>
             </column>
             <column name="remote_db_id" type="INT">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="title" type="VARCHAR(255)">
                 <constraints nullable="false"/>
@@ -39,16 +41,22 @@
             <column name="type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="remote_db_id" type="INT">
+                <constraints nullable="true"/>
+            </column>
         </createTable>
     </changeSet>
-    <changeSet author="adrian (generated)" id="1566235943799-4">
-        <addUniqueConstraint columnNames="remote_db_id" constraintName="UC_ACTOR_DATAREMOTE_DB_ID_COL" tableName="actor_data"/>
-    </changeSet>
     <changeSet author="adrian (generated)" id="1566235943799-5">
-        <addForeignKeyConstraint baseColumnNames="rightSideId" baseTableName="PersonRelation" constraintName="rightSideConstraint" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="person" validate="true"/>
-        <addForeignKeyConstraint baseColumnNames="leftSideId" baseTableName="PersonRelation" constraintName="leftSideConstraint" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="person" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="rightsideid" baseTableName="person_relation"
+                                 constraintName="rightSideConstraint" deferrable="false" initiallyDeferred="false"
+                                 referencedColumnNames="id" referencedTableName="person" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="leftsideid" baseTableName="person_relation"
+                                 constraintName="leftSideConstraint" deferrable="false" initiallyDeferred="false"
+                                 referencedColumnNames="id" referencedTableName="person" validate="true"/>
     </changeSet>
     <changeSet author="adrian (generated)" id="1566235943799-7">
-        <addForeignKeyConstraint baseColumnNames="person_id" baseTableName="actor_data" constraintName="dataOfTheActor" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="person" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="person_id" baseTableName="actor_data" constraintName="dataOfTheActor"
+                                 deferrable="false" initiallyDeferred="false" referencedColumnNames="id"
+                                 referencedTableName="person" validate="true"/>
     </changeSet>
 </databaseChangeLog>

@@ -1,9 +1,10 @@
 package com.ampmangu.degrees.remote.models;
 
 
-import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
+import java.util.List;
 
 public class PeopleDetailTv {
 
@@ -24,12 +25,15 @@ public class PeopleDetailTv {
     public void setCast(List<Cast> cast) {
         this.cast = cast;
     }
+
     public void addCast(List<Cast> cast) {
         this.cast.addAll(cast);
     }
+
     public void addCrew(List<Crew> crew) {
         this.crew.addAll(crew);
     }
+
     public List<Crew> getCrew() {
         return crew;
     }

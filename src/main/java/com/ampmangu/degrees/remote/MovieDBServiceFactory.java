@@ -19,6 +19,7 @@ import static com.ampmangu.degrees.config.Constants.MOVIE_DB_API_KEY;
 @Service
 public class MovieDBServiceFactory {
     private static final String BASE_URL = "https://api.themoviedb.org/3/";
+
     @Bean
     public static MovieDBService makeActorService() {
         return makeActorService(makeGson());

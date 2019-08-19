@@ -1,10 +1,14 @@
 package com.ampmangu.degrees.web.rest;
 
+import com.ampmangu.degrees.domain.Person;
 import com.ampmangu.degrees.remote.MovieDBService;
 import com.ampmangu.degrees.remote.models.PeopleDetail;
+import com.ampmangu.degrees.remote.models.PeopleResults;
+import com.ampmangu.degrees.service.ActorDataService;
+import com.ampmangu.degrees.service.PersonService;
+import io.reactivex.Observable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,17 +17,23 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import static com.ampmangu.degrees.remote.MovieDBUtils.processPersonRequest;
+import static com.ampmangu.degrees.remote.MovieDBUtils.savePerson;
 
 @RestController
 @RequestMapping("/api")
 public class PersonResource {
     private final Logger log = LoggerFactory.getLogger(PersonResource.class);
 
-    @Autowired
+    private final PersonService personService;
+
+    private final ActorDataService actorDataService;
+
     private MovieDBService movieDBService;
 
-    PersonResource() {
-
+    PersonResource(PersonService personService, MovieDBService dbService, ActorDataService actorDataService) {
+        this.personService = personService;
+        this.movieDBService = dbService;
+        this.actorDataService = actorDataService;
     }
 
     /**
@@ -81,11 +91,14 @@ public class PersonResource {
     }
 
     @GetMapping("/people/{name}/actor")
-    public ResponseEntity<PeopleDetail> getPerson(@PathVariable String name) {
+    public ResponseEntity<Person> getPerson(@PathVariable String name) {
         final PeopleDetail[] result = {new PeopleDetail()};
-        movieDBService.getActorList(name)
-                .subscribe(actor -> result[0] = processPersonRequest(actor.getResults().get(0).getId(), movieDBService), this::processError);
-        return ResponseEntity.ok().body(result[0]);
+        Observable<PeopleResults> actorObs = movieDBService.getActorList(name);
+        final String[] nameResult = {""};
+        actorObs.subscribe(actor -> nameResult[0] = actor.getResults().get(0).getName() != null ? actor.getResults().get(0).getName() : name);
+        actorObs.subscribe(actor -> result[0] = processPersonRequest(actor.getResults().get(0).getId(), movieDBService), this::processError);
+        Person person = savePerson(result[0], nameResult[0], personService, actorDataService);
+        return ResponseEntity.ok().body(person);
     }
 
     private void processError(Throwable err) {

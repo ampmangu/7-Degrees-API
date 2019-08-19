@@ -1,6 +1,7 @@
 package com.ampmangu.degrees.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -23,7 +24,7 @@ public class ActorData implements Serializable {
     private Long id;
 
     @NotNull
-    @Column(name = "remote_db_id", nullable = false, unique = true)
+    @Column(name = "remote_db_id")
     private Integer remoteDbId;
 
     @NotNull
@@ -32,6 +33,7 @@ public class ActorData implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "person_id")
+    @JsonIgnoreProperties
     private Person person;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
@@ -102,9 +104,9 @@ public class ActorData implements Serializable {
     @Override
     public String toString() {
         return "ActorData{" +
-            "id=" + getId() +
-            ", remoteDbId=" + getRemoteDbId() +
-            ", title='" + getTitle() + "'" +
-            "}";
+                "id=" + getId() +
+                ", remoteDbId=" + getRemoteDbId() +
+                ", title='" + getTitle() + "'" +
+                "}";
     }
 }

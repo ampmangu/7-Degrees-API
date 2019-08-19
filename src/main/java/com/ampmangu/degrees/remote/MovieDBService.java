@@ -1,6 +1,5 @@
 package com.ampmangu.degrees.remote;
 
-import com.ampmangu.degrees.remote.models.Cast;
 import com.ampmangu.degrees.remote.models.PeopleDetail;
 import com.ampmangu.degrees.remote.models.PeopleDetailTv;
 import com.ampmangu.degrees.remote.models.PeopleResults;

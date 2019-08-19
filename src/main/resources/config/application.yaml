@@ -19,7 +19,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     database: MYSQL
-    show-sql: true
+    show-sql: false
     properties:
       hibernate.id.new_generator_mappings: true
       hibernate.connection.provider_disables_autocommit: true
@@ -38,3 +38,8 @@ spring:
 #    driver: com.mysql.jdbc.Driver
 server:
   port: 8080
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.hibernate: ERROR
