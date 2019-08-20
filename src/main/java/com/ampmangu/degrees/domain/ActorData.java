@@ -85,20 +85,27 @@ public class ActorData implements Serializable {
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof ActorData)) {
-            return false;
-        }
-        return id != null && id.equals(((ActorData) o).id);
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ActorData actorData = (ActorData) o;
+
+        if (!getId().equals(actorData.getId())) return false;
+        if (!getRemoteDbId().equals(actorData.getRemoteDbId())) return false;
+        if (!getTitle().equals(actorData.getTitle())) return false;
+        return getPerson().equals(actorData.getPerson());
     }
 
     @Override
     public int hashCode() {
-        return 31;
+        int result = getId().hashCode();
+        result = 31 * result + getRemoteDbId().hashCode();
+        result = 31 * result + getTitle().hashCode();
+        result = 31 * result + getPerson().hashCode();
+        return result;
     }
 
     @Override

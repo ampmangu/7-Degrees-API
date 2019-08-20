@@ -55,7 +55,7 @@ public class MovieDBUtils {
         Person actor = personService.findByRemoteId(person.getId()).get();
         List<ActorData> actorDataList = new ArrayList<>();
         for (Cast cast : person.getCast()) {
-            if (!actorDataService.findByPersonAndRemoteId(actor.getId(), cast.getId()).isPresent()) {
+            if (actorDataService.findByPersonAndRemoteId(actor.getId(), cast.getId()).isPresent()) {
                 continue;
             } else {
                 addActorData(actorDataService, actor, actorDataList, cast);

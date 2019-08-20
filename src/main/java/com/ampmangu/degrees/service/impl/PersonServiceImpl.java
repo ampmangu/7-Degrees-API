@@ -55,4 +55,13 @@ public class PersonServiceImpl implements PersonService {
     public Optional<Person> findByRemoteId(Integer remoteId) {
         return Optional.of(personRepository.findAll().stream().filter(person -> person.getRemoteDbId() != null && person.getRemoteDbId().equals(remoteId)).collect(Collectors.toList()).get(0));
     }
+
+    @Override
+    public Optional<Person> findByName(String name) {
+        List<Person> persons = personRepository.findAll().stream().filter(person -> person.getName() != null && person.getName().equalsIgnoreCase(name)).collect(Collectors.toList());
+        if (persons.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(persons.get(0));
+    }
 }
