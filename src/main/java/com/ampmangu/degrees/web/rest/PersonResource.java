@@ -5,16 +5,23 @@ import com.ampmangu.degrees.remote.MovieDBService;
 import com.ampmangu.degrees.remote.models.PeopleDetail;
 import com.ampmangu.degrees.remote.models.PeopleResults;
 import com.ampmangu.degrees.service.ActorDataService;
+import com.ampmangu.degrees.service.PersonRelationService;
 import com.ampmangu.degrees.service.PersonService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.reactivex.Observable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import redis.clients.jedis.Jedis;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Optional;
 
 import static com.ampmangu.degrees.remote.MovieDBUtils.processPersonRequest;
 import static com.ampmangu.degrees.remote.MovieDBUtils.savePerson;
@@ -28,12 +35,22 @@ public class PersonResource {
 
     private final ActorDataService actorDataService;
 
+    private final PersonRelationService personRelationService;
+
     private MovieDBService movieDBService;
 
-    PersonResource(PersonService personService, MovieDBService dbService, ActorDataService actorDataService) {
+    private Jedis jedisClient;
+
+    private ObjectMapper mapper = new ObjectMapper();
+
+    PersonResource(PersonService personService, MovieDBService dbService, ActorDataService actorDataService, Jedis jedisClient, JavaTimeModule javaTimeModule, PersonRelationService personRelationService) {
         this.personService = personService;
         this.movieDBService = dbService;
         this.actorDataService = actorDataService;
+        this.jedisClient = jedisClient;
+        this.personRelationService = personRelationService;
+        mapper.findAndRegisterModules();
+        mapper.registerModule(javaTimeModule);
     }
 
     /**
@@ -77,28 +94,45 @@ public class PersonResource {
 
     }
 
-    /**
-     * {@code GET  /people/:id} : get the "id" person.
-     *
-     * @param id the id of the person to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the person, or with status {@code 404 (Not Found)}.
-     */
-    @GetMapping("/people/{id}")
-    public ResponseEntity<String> getPersonf(@PathVariable String id) {
-        log.debug("REST request to get Person : {}", id);
-        throw new UnsupportedOperationException("Not implemented");
-
-    }
 
     @GetMapping("/people/{name}/actor")
     public ResponseEntity<Person> getPerson(@PathVariable String name) {
-        final PeopleDetail[] result = {new PeopleDetail()};
-        Observable<PeopleResults> actorObs = movieDBService.getActorList(name);
-        final String[] nameResult = {""};
-        actorObs.subscribe(actor -> nameResult[0] = actor.getResults().get(0).getName() != null ? actor.getResults().get(0).getName() : name);
-        actorObs.subscribe(actor -> result[0] = processPersonRequest(actor.getResults().get(0).getId(), movieDBService), this::processError);
-        Person person = savePerson(result[0], nameResult[0], personService, actorDataService);
-        return ResponseEntity.ok().body(person);
+        log.info("Looking for actor {} ", name);
+        String personCached = jedisClient.get(name.toUpperCase());
+        if (personCached != null && !personCached.isEmpty()) {
+            Person person;
+            try {
+                person = mapper.readValue(personCached, Person.class);
+            } catch (IOException e) {
+                log.error("Couldn't find actor {} in cache, going to search", name);
+                person = getPersonFromProvider(name);
+            }
+            return ResponseEntity.ok().body(person);
+        } else {
+            Person person = getPersonFromProvider(name);
+            return ResponseEntity.ok().body(person);
+        }
+    }
+
+    private Person getPersonFromProvider(@PathVariable String name) {
+        Optional<Person> dbPerson = personService.findByName(name);
+        if (dbPerson.isPresent()) {
+            return dbPerson.get();
+        } else {
+            final PeopleDetail[] result = {new PeopleDetail()};
+            Observable<PeopleResults> actorObs = movieDBService.getActorList(name);
+            final String[] nameResult = {""};
+            actorObs.subscribe(actor -> nameResult[0] = actor.getResults().get(0).getName() != null ? actor.getResults().get(0).getName() : name);
+            actorObs.subscribe(actor -> result[0] = processPersonRequest(actor.getResults().get(0).getId(), movieDBService), this::processError);
+            Person person = savePerson(result[0], nameResult[0], personService, actorDataService);
+            try {
+                log.info("Saving in cache {} ", nameResult[0]);
+                jedisClient.set(nameResult[0].toUpperCase(), mapper.writeValueAsString(person));
+            } catch (JsonProcessingException ex) {
+                log.warn("Couldn't save in redis user of id " + person.getId(), ex);
+            }
+            return person;
+        }
     }
 
     private void processError(Throwable err) {

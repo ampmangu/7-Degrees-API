@@ -42,4 +42,6 @@ public interface PersonService {
     boolean existsByRemoteId(Integer remoteId);
 
     Optional<Person> findByRemoteId(Integer remoteId);
+
+    Optional<Person> findByName(String name);
 }
