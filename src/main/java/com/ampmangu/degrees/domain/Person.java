@@ -117,10 +117,7 @@ public class Person implements Serializable {
         if (!getName().equals(person.getName())) return false;
         if (!getDateAdded().equals(person.getDateAdded())) return false;
         if (getType() != person.getType()) return false;
-        if (!getRemoteDbId().equals(person.getRemoteDbId())) return false;
-        if (getRelations() != null ? !getRelations().equals(person.getRelations()) : person.getRelations() != null)
-            return false;
-        return getActorDataList() != null ? getActorDataList().equals(person.getActorDataList()) : person.getActorDataList() == null;
+        return getRemoteDbId().equals(person.getRemoteDbId());
     }
 
     @Override
@@ -130,8 +127,6 @@ public class Person implements Serializable {
         result = 31 * result + getDateAdded().hashCode();
         result = 31 * result + getType().hashCode();
         result = 31 * result + getRemoteDbId().hashCode();
-        result = 31 * result + (getRelations() != null ? getRelations().hashCode() : 0);
-        result = 31 * result + (getActorDataList() != null ? getActorDataList().hashCode() : 0);
         return result;
     }
 
