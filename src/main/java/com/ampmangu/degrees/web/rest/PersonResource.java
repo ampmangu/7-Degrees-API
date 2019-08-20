@@ -1,5 +1,6 @@
 package com.ampmangu.degrees.web.rest;
 
+import com.ampmangu.degrees.domain.ActorData;
 import com.ampmangu.degrees.domain.Person;
 import com.ampmangu.degrees.remote.MovieDBService;
 import com.ampmangu.degrees.remote.models.PeopleDetail;
@@ -20,11 +21,14 @@ import redis.clients.jedis.Jedis;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.ampmangu.degrees.remote.MovieDBUtils.processPersonRequest;
 import static com.ampmangu.degrees.remote.MovieDBUtils.savePerson;
+import static com.ampmangu.degrees.service.PersonUtils.saveRelation;
 
 @RestController
 @RequestMapping("/api")
@@ -94,6 +98,26 @@ public class PersonResource {
 
     }
 
+    @GetMapping("/people/forcetraversal")
+    public ResponseEntity<List<Integer>> forceTraversal() {
+        return ResponseEntity.ok().body(forceTraversal(actorDataService, personRelationService));
+    }
+
+    public static List<Integer> forceTraversal(ActorDataService actorDataService, PersonRelationService personRelationService) {
+        HashSet<Object> duplicates = new HashSet<>();
+        List<ActorData> actorDataDistinctByTitle = actorDataService.findAll();
+        actorDataDistinctByTitle.removeIf(actorData -> duplicates.add(actorData.getTitle()));
+        List<Integer> idToTraverse =
+                actorDataDistinctByTitle.stream().map(ActorData::getRemoteDbId).distinct().collect(Collectors.toList());
+        for (Integer remoteId : idToTraverse) {
+            List<Person> actorDataList = actorDataService.findAll().stream().filter(
+                    actorData -> actorData.getRemoteDbId() != null && actorData.getRemoteDbId().equals(remoteId)).map(ActorData::getPerson).collect(Collectors.toList());
+            if (actorDataList.size() > 1) {
+                saveRelation(actorDataList, personRelationService);
+            }
+        }
+        return idToTraverse;
+    }
 
     @GetMapping("/people/{name}/actor")
     public ResponseEntity<Person> getPerson(@PathVariable String name) {
