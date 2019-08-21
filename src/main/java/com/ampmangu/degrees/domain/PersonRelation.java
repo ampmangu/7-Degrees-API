@@ -6,6 +6,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
+@SuppressWarnings("ALL")
 @Entity
 @Table(name = "person_relation")
 public class PersonRelation implements Serializable {
@@ -17,12 +18,12 @@ public class PersonRelation implements Serializable {
     @Column(name = "stillvalid")
     private Boolean stillValid = true;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "leftsideid", insertable = false, updatable = false)
     @JsonIgnoreProperties
     private Person leftSidePerson;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "rightsideid", insertable = false, updatable = false)
     @JsonIgnoreProperties
     private Person rightSidePerson;

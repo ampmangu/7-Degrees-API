@@ -2,6 +2,7 @@ package com.ampmangu.degrees.web.rest;
 
 import com.ampmangu.degrees.domain.ActorData;
 import com.ampmangu.degrees.domain.Person;
+import com.ampmangu.degrees.domain.PersonRelation;
 import com.ampmangu.degrees.remote.MovieDBService;
 import com.ampmangu.degrees.remote.models.PeopleDetail;
 import com.ampmangu.degrees.remote.models.PeopleResults;
@@ -100,10 +101,10 @@ public class PersonResource {
 
     @GetMapping("/people/forcetraversal")
     public ResponseEntity<List<Integer>> forceTraversal() {
-        return ResponseEntity.ok().body(forceTraversal(actorDataService, personRelationService));
+        return ResponseEntity.ok().body(forceTraversal(actorDataService, personRelationService, personService));
     }
 
-    public static List<Integer> forceTraversal(ActorDataService actorDataService, PersonRelationService personRelationService) {
+    public static List<Integer> forceTraversal(ActorDataService actorDataService, PersonRelationService personRelationService, PersonService personService) {
         HashSet<Object> duplicates = new HashSet<>();
         List<ActorData> actorDataDistinctByTitle = actorDataService.findAll();
         actorDataDistinctByTitle.removeIf(actorData -> duplicates.add(actorData.getTitle()));
@@ -113,7 +114,7 @@ public class PersonResource {
             List<Person> actorDataList = actorDataService.findAll().stream().filter(
                     actorData -> actorData.getRemoteDbId() != null && actorData.getRemoteDbId().equals(remoteId)).map(ActorData::getPerson).collect(Collectors.toList());
             if (actorDataList.size() > 1) {
-                saveRelation(actorDataList, personRelationService);
+                saveRelation(actorDataList, personRelationService, personService);
             }
         }
         return idToTraverse;

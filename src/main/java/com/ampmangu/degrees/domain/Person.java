@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 
+@SuppressWarnings("ALL")
 @Entity
 @Table(name = "person")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
@@ -38,10 +39,10 @@ public class Person implements Serializable {
     @Column(name = "remote_db_id")
     private Integer remoteDbId;
 
-    @OneToMany(mappedBy = "leftSidePerson", cascade = CascadeType.ALL,
+    @OneToMany(mappedBy = "leftSidePerson", cascade = {CascadeType.PERSIST, CascadeType.REFRESH},
             orphanRemoval = true, fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    @JsonIgnoreProperties("leftSidePerson")
+    @JsonIgnoreProperties(value = {"leftSidePerson", "rightSidePerson"})
     private Set<PersonRelation> relations;
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL,
@@ -88,6 +89,10 @@ public class Person implements Serializable {
 
     public void setRelations(Set<PersonRelation> relations) {
         this.relations = relations;
+    }
+
+    public void addRelations(PersonRelation relation) {
+        this.relations.add(relation);
     }
 
     public List<ActorData> getActorDataList() {
