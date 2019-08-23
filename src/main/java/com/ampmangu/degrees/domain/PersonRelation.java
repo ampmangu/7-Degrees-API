@@ -82,6 +82,16 @@ public class PersonRelation implements Serializable {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "PersonRelation{" +
+                "id=" + id +
+                ", stillValid=" + stillValid +
+                ", leftSidePerson=" + leftSidePerson +
+                ", rightSidePerson=" + rightSidePerson +
+                '}';
+    }
+
     @Embeddable
     public static class PersonRelationId implements Serializable {
         private static final long serialVersionUID = 1L;
