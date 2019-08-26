@@ -11,6 +11,7 @@ import com.ampmangu.degrees.service.PersonRelationService;
 import com.ampmangu.degrees.service.PersonService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.reactivex.Observable;
 import org.slf4j.Logger;
@@ -22,14 +23,13 @@ import redis.clients.jedis.Jedis;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import static com.ampmangu.degrees.remote.MovieDBUtils.processPersonRequest;
 import static com.ampmangu.degrees.remote.MovieDBUtils.savePerson;
 import static com.ampmangu.degrees.service.PersonUtils.saveRelation;
+import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.stripAccents;
 
 @RestController
 @RequestMapping("/api")
@@ -56,6 +56,7 @@ public class PersonResource {
         this.personRelationService = personRelationService;
         mapper.findAndRegisterModules();
         mapper.registerModule(javaTimeModule);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
     /**
@@ -139,7 +140,7 @@ public class PersonResource {
         }
     }
 
-    private Person getPersonFromProvider(@PathVariable String name) {
+    private Person getPersonFromProvider(String name) {
         Optional<Person> dbPerson = personService.findByName(name);
         if (dbPerson.isPresent()) {
             return dbPerson.get();
@@ -151,8 +152,9 @@ public class PersonResource {
             actorObs.subscribe(actor -> result[0] = processPersonRequest(actor.getResults().get(0).getId(), movieDBService), this::processError);
             Person person = savePerson(result[0], nameResult[0], personService, actorDataService);
             try {
-                log.info("Saving in cache {} ", nameResult[0]);
-                jedisClient.set(nameResult[0].toUpperCase(), mapper.writeValueAsString(person));
+                String savedName = stripAccents(nameResult[0].toUpperCase());
+                log.info("Saving in cache {} ", savedName);
+                jedisClient.set(savedName, mapper.writeValueAsString(person));
             } catch (JsonProcessingException ex) {
                 log.warn("Couldn't save in redis user of id " + person.getId(), ex);
             }
