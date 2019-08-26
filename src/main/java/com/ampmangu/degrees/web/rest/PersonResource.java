@@ -2,13 +2,13 @@ package com.ampmangu.degrees.web.rest;
 
 import com.ampmangu.degrees.domain.ActorData;
 import com.ampmangu.degrees.domain.Person;
-import com.ampmangu.degrees.domain.PersonRelation;
 import com.ampmangu.degrees.remote.MovieDBService;
 import com.ampmangu.degrees.remote.models.PeopleDetail;
 import com.ampmangu.degrees.remote.models.PeopleResults;
 import com.ampmangu.degrees.service.ActorDataService;
 import com.ampmangu.degrees.service.PersonRelationService;
 import com.ampmangu.degrees.service.PersonService;
+import com.ampmangu.degrees.utils.DegreeResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -27,6 +27,7 @@ import java.util.*;
 
 import static com.ampmangu.degrees.remote.MovieDBUtils.processPersonRequest;
 import static com.ampmangu.degrees.remote.MovieDBUtils.savePerson;
+import static com.ampmangu.degrees.service.PersonUtils.degreesSeparation;
 import static com.ampmangu.degrees.service.PersonUtils.saveRelation;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.stripAccents;
@@ -110,10 +111,10 @@ public class PersonResource {
         List<ActorData> actorDataDistinctByTitle = actorDataService.findAll();
         actorDataDistinctByTitle.removeIf(actorData -> duplicates.add(actorData.getTitle()));
         List<Integer> idToTraverse =
-                actorDataDistinctByTitle.stream().map(ActorData::getRemoteDbId).distinct().collect(Collectors.toList());
+                actorDataDistinctByTitle.stream().map(ActorData::getRemoteDbId).distinct().collect(toList());
         for (Integer remoteId : idToTraverse) {
             List<Person> actorDataList = actorDataService.findAll().stream().filter(
-                    actorData -> actorData.getRemoteDbId() != null && actorData.getRemoteDbId().equals(remoteId)).map(ActorData::getPerson).collect(Collectors.toList());
+                    actorData -> actorData.getRemoteDbId() != null && actorData.getRemoteDbId().equals(remoteId)).map(ActorData::getPerson).collect(toList());
             if (actorDataList.size() > 1) {
                 saveRelation(actorDataList, personRelationService, personService);
             }
@@ -121,7 +122,43 @@ public class PersonResource {
         return idToTraverse;
     }
 
-    @GetMapping("/people/{name}/actor")
+    @GetMapping("/people/actor/{name1}/{name2}")
+    @ResponseBody
+    public ResponseEntity<DegreeResponse> getDegrees(@PathVariable String name1, @PathVariable String name2) {
+        //We either ensure having it or getting it fresh
+        ResponseEntity<Person> firstResponseEntity = getPerson(name1);
+        Person firstPerson = firstResponseEntity.getBody();
+        ResponseEntity<Person> secondResponseEntity = getPerson(name2);
+        Person secondPerson = secondResponseEntity.getBody();
+        if (firstPerson.getName().equalsIgnoreCase(secondPerson.getName())) {
+            return ResponseEntity.ok().body(new DegreeResponse(firstPerson, firstPerson, 0));
+        }
+        Map<Integer, List<DegreeResponse>> degreeMap = degreesSeparation(firstPerson, secondPerson, actorDataService, personRelationService, 0);
+        Integer degree = (Integer) degreeMap.keySet().toArray()[0];
+        List<DegreeResponse> degreeResponseList = degreeMap.get(degree);
+        return ResponseEntity.ok().body(new DegreeResponse(firstPerson, secondPerson, degree, degreeResponseList));
+    }
+
+    @GetMapping("/people/actor/filldatabase")
+    public ResponseEntity<List<Integer>> fillDatabase() {
+        List<Integer> idList = new ArrayList<>();
+        Optional<Person> max = personService.findAll().stream().max(Comparator.comparing(Person::getId));
+        if (max.isPresent()) {
+            Integer maxId = max.get().getRemoteDbId();
+            for (int remoteId = maxId; remoteId < maxId + 10; remoteId = remoteId + 1) {
+                final String[] name = new String[1];
+                movieDBService.getActorBasicInfo(remoteId).subscribe(
+                        basicPerson -> name[0] = basicPerson.getName()
+                );
+                PeopleDetail peopleDetail = processPersonRequest(remoteId, movieDBService);
+                Person person = savePerson(peopleDetail, name[0], personService, actorDataService);
+                idList.add(person.getRemoteDbId());
+            }
+        }
+        return ResponseEntity.ok().body(idList);
+    }
+
+    @GetMapping("/people/actor/{name}/")
     public ResponseEntity<Person> getPerson(@PathVariable String name) {
         log.info("Looking for actor {} ", name);
         String personCached = jedisClient.get(name.toUpperCase());
