@@ -14,4 +14,6 @@ public interface PersonRelationService {
 
     void delete(PersonRelation.PersonRelationId id);
 
+    List<PersonRelation> allPersonsOfLeftSide(Long leftSideId);
+
 }
