@@ -66,7 +66,7 @@ public class DegreeResponse {
 
         if (!getFrom().equals(that.getFrom())) return false;
         if (!getTo().equals(that.getTo())) return false;
-        if (!getDegrees().equals(that.getDegrees())) return false;
+        if (getDegrees() != null ? !getDegrees().equals(that.getDegrees()) : that.getDegrees() != null) return false;
         return getPeople() != null ? getPeople().equals(that.getPeople()) : that.getPeople() == null;
     }
 
@@ -74,7 +74,7 @@ public class DegreeResponse {
     public int hashCode() {
         int result = getFrom().hashCode();
         result = 31 * result + getTo().hashCode();
-        result = 31 * result + getDegrees().hashCode();
+        result = 31 * result + (getDegrees() != null ? getDegrees().hashCode() : 0);
         result = 31 * result + (getPeople() != null ? getPeople().hashCode() : 0);
         return result;
     }
