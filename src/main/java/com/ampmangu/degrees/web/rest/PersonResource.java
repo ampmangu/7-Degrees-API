@@ -9,9 +9,9 @@ import com.ampmangu.degrees.service.ActorDataService;
 import com.ampmangu.degrees.service.PersonRelationService;
 import com.ampmangu.degrees.service.PersonService;
 import com.ampmangu.degrees.utils.DegreeResponse;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.reactivex.Observable;
 import org.slf4j.Logger;
@@ -133,7 +133,7 @@ public class PersonResource {
         if (firstPerson.getName().equalsIgnoreCase(secondPerson.getName())) {
             return ResponseEntity.ok().body(new DegreeResponse(firstPerson, firstPerson, 0));
         }
-        Map<Integer, List<DegreeResponse>> degreeMap = degreesSeparation(firstPerson, secondPerson, actorDataService, personRelationService, 0);
+        Map<Integer, List<DegreeResponse>> degreeMap = degreesSeparation(firstPerson, secondPerson, 0, new ArrayList<>());
         Integer degree = (Integer) degreeMap.keySet().toArray()[0];
         List<DegreeResponse> degreeResponseList = degreeMap.get(degree);
         return ResponseEntity.ok().body(new DegreeResponse(firstPerson, secondPerson, degree, degreeResponseList));
