@@ -1,5 +1,6 @@
 package com.ampmangu.degrees.remote;
 
+import com.ampmangu.degrees.remote.models.BasicPerson;
 import com.ampmangu.degrees.remote.models.PeopleDetail;
 import com.ampmangu.degrees.remote.models.PeopleDetailTv;
 import com.ampmangu.degrees.remote.models.PeopleResults;
@@ -17,5 +18,8 @@ public interface MovieDBService {
 
     @GET("person/{person_id}/tv_credits")
     Observable<PeopleDetailTv> getActorTvDetail(@Path("person_id") Integer id);
+
+    @GET("person/{person_id}")
+    Observable<BasicPerson> getActorBasicInfo(@Path("person_id") Integer id);
 
 }

@@ -50,4 +50,9 @@ public class PersonRelationServiceImpl implements PersonRelationService {
         throw new UnsupportedOperationException("Operation not supported");
     }
 
+    @Override
+    public List<PersonRelation> allPersonsOfLeftSide(Long leftSideId) {
+        return personRelationRepository.findAll().stream().filter(personRelation -> personRelation.getLeftSidePerson().getId().equals(leftSideId)).collect(Collectors.toList());
+    }
+
 }

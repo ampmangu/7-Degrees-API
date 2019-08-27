@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 
+@SuppressWarnings("ALL")
 @Entity
 @Table(name = "person")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
@@ -38,14 +39,14 @@ public class Person implements Serializable {
     @Column(name = "remote_db_id")
     private Integer remoteDbId;
 
-    @OneToMany(mappedBy = "leftSidePerson", cascade = CascadeType.ALL,
+    @OneToMany(mappedBy = "leftSidePerson", cascade = {CascadeType.PERSIST, CascadeType.REFRESH},
             orphanRemoval = true, fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    @JsonIgnoreProperties("leftSidePerson")
-    private Set<PersonRelation> relations;
+    @JsonIgnoreProperties(value = {"leftSidePerson", "rightSidePerson"})
+    private List<PersonRelation> relations;
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL,
-            orphanRemoval = true, fetch = FetchType.EAGER)
+            orphanRemoval = true)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties("person")
     private List<ActorData> actorDataList;
@@ -82,12 +83,16 @@ public class Person implements Serializable {
         this.type = type;
     }
 
-    public Set<PersonRelation> getRelations() {
+    public List<PersonRelation> getRelations() {
         return relations;
     }
 
-    public void setRelations(Set<PersonRelation> relations) {
+    public void setRelations(List<PersonRelation> relations) {
         this.relations = relations;
+    }
+
+    public void addRelations(PersonRelation relation) {
+        this.relations.add(relation);
     }
 
     public List<ActorData> getActorDataList() {

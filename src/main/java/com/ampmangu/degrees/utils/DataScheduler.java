@@ -29,6 +29,6 @@ public class DataScheduler {
     @Scheduled(cron = "0 * * * * *")
     public void scheduleDataRelation() {
         logger.info("Scheduled traversal");
-        PersonResource.forceTraversal(actorDataService, personRelationService);
+        PersonResource.forceTraversal(actorDataService, personRelationService, personService);
     }
 }

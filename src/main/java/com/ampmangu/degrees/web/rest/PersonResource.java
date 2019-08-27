@@ -8,6 +8,8 @@ import com.ampmangu.degrees.remote.models.PeopleResults;
 import com.ampmangu.degrees.service.ActorDataService;
 import com.ampmangu.degrees.service.PersonRelationService;
 import com.ampmangu.degrees.service.PersonService;
+import com.ampmangu.degrees.utils.DegreeResponse;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -21,14 +23,14 @@ import redis.clients.jedis.Jedis;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import static com.ampmangu.degrees.remote.MovieDBUtils.processPersonRequest;
 import static com.ampmangu.degrees.remote.MovieDBUtils.savePerson;
+import static com.ampmangu.degrees.service.PersonUtils.degreesSeparation;
 import static com.ampmangu.degrees.service.PersonUtils.saveRelation;
+import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.stripAccents;
 
 @RestController
 @RequestMapping("/api")
@@ -55,6 +57,7 @@ public class PersonResource {
         this.personRelationService = personRelationService;
         mapper.findAndRegisterModules();
         mapper.registerModule(javaTimeModule);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
     /**
@@ -100,26 +103,62 @@ public class PersonResource {
 
     @GetMapping("/people/forcetraversal")
     public ResponseEntity<List<Integer>> forceTraversal() {
-        return ResponseEntity.ok().body(forceTraversal(actorDataService, personRelationService));
+        return ResponseEntity.ok().body(forceTraversal(actorDataService, personRelationService, personService));
     }
 
-    public static List<Integer> forceTraversal(ActorDataService actorDataService, PersonRelationService personRelationService) {
+    public static List<Integer> forceTraversal(ActorDataService actorDataService, PersonRelationService personRelationService, PersonService personService) {
         HashSet<Object> duplicates = new HashSet<>();
         List<ActorData> actorDataDistinctByTitle = actorDataService.findAll();
         actorDataDistinctByTitle.removeIf(actorData -> duplicates.add(actorData.getTitle()));
         List<Integer> idToTraverse =
-                actorDataDistinctByTitle.stream().map(ActorData::getRemoteDbId).distinct().collect(Collectors.toList());
+                actorDataDistinctByTitle.stream().map(ActorData::getRemoteDbId).distinct().collect(toList());
         for (Integer remoteId : idToTraverse) {
             List<Person> actorDataList = actorDataService.findAll().stream().filter(
-                    actorData -> actorData.getRemoteDbId() != null && actorData.getRemoteDbId().equals(remoteId)).map(ActorData::getPerson).collect(Collectors.toList());
+                    actorData -> actorData.getRemoteDbId() != null && actorData.getRemoteDbId().equals(remoteId)).map(ActorData::getPerson).collect(toList());
             if (actorDataList.size() > 1) {
-                saveRelation(actorDataList, personRelationService);
+                saveRelation(actorDataList, personRelationService, personService);
             }
         }
         return idToTraverse;
     }
 
-    @GetMapping("/people/{name}/actor")
+    @GetMapping("/people/actor/{name1}/{name2}")
+    @ResponseBody
+    public ResponseEntity<DegreeResponse> getDegrees(@PathVariable String name1, @PathVariable String name2) {
+        //We either ensure having it or getting it fresh
+        ResponseEntity<Person> firstResponseEntity = getPerson(name1);
+        Person firstPerson = firstResponseEntity.getBody();
+        ResponseEntity<Person> secondResponseEntity = getPerson(name2);
+        Person secondPerson = secondResponseEntity.getBody();
+        if (firstPerson.getName().equalsIgnoreCase(secondPerson.getName())) {
+            return ResponseEntity.ok().body(new DegreeResponse(firstPerson, firstPerson, 0));
+        }
+        Map<Integer, List<DegreeResponse>> degreeMap = degreesSeparation(firstPerson, secondPerson, 0, new ArrayList<>());
+        Integer degree = (Integer) degreeMap.keySet().toArray()[0];
+        List<DegreeResponse> degreeResponseList = degreeMap.get(degree);
+        return ResponseEntity.ok().body(new DegreeResponse(firstPerson, secondPerson, degree, degreeResponseList));
+    }
+
+    @GetMapping("/people/actor/filldatabase")
+    public ResponseEntity<List<Integer>> fillDatabase() {
+        List<Integer> idList = new ArrayList<>();
+        Optional<Person> max = personService.findAll().stream().max(Comparator.comparing(Person::getId));
+        if (max.isPresent()) {
+            Integer maxId = max.get().getRemoteDbId();
+            for (int remoteId = maxId; remoteId < maxId + 10; remoteId = remoteId + 1) {
+                final String[] name = new String[1];
+                movieDBService.getActorBasicInfo(remoteId).subscribe(
+                        basicPerson -> name[0] = basicPerson.getName()
+                );
+                PeopleDetail peopleDetail = processPersonRequest(remoteId, movieDBService);
+                Person person = savePerson(peopleDetail, name[0], personService, actorDataService);
+                idList.add(person.getRemoteDbId());
+            }
+        }
+        return ResponseEntity.ok().body(idList);
+    }
+
+    @GetMapping("/people/actor/{name}/")
     public ResponseEntity<Person> getPerson(@PathVariable String name) {
         log.info("Looking for actor {} ", name);
         String personCached = jedisClient.get(name.toUpperCase());
@@ -138,7 +177,7 @@ public class PersonResource {
         }
     }
 
-    private Person getPersonFromProvider(@PathVariable String name) {
+    private Person getPersonFromProvider(String name) {
         Optional<Person> dbPerson = personService.findByName(name);
         if (dbPerson.isPresent()) {
             return dbPerson.get();
@@ -150,8 +189,9 @@ public class PersonResource {
             actorObs.subscribe(actor -> result[0] = processPersonRequest(actor.getResults().get(0).getId(), movieDBService), this::processError);
             Person person = savePerson(result[0], nameResult[0], personService, actorDataService);
             try {
-                log.info("Saving in cache {} ", nameResult[0]);
-                jedisClient.set(nameResult[0].toUpperCase(), mapper.writeValueAsString(person));
+                String savedName = stripAccents(nameResult[0].toUpperCase());
+                log.info("Saving in cache {} ", savedName);
+                jedisClient.set(savedName, mapper.writeValueAsString(person));
             } catch (JsonProcessingException ex) {
                 log.warn("Couldn't save in redis user of id " + person.getId(), ex);
             }
