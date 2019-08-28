@@ -198,6 +198,7 @@ public class PersonResource {
                 String savedName = stripAccents(nameResult[0].toUpperCase());
                 log.info("Saving in cache {} ", savedName);
                 jedisClient.set(savedName, mapper.writeValueAsString(person));
+                jedisClient.set(name.toUpperCase(), mapper.writeValueAsString(person));
             } catch (JsonProcessingException ex) {
                 log.warn("Couldn't save in redis user of id " + person.getId(), ex);
             }
