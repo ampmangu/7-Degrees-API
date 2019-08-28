@@ -76,6 +76,9 @@ public class MovieDBUtils {
         }
         actorData.setPerson(actor);
         actorData.setRemoteDbId(cast.getId());
+        if(actor.getType()==TypePerson.MOVIES) {
+            actorData.setActorPicUrl(cast.getPosterPath());
+        }
         actorDataList.add(actorDataService.save(actorData));
     }
 }

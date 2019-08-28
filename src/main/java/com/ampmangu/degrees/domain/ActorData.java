@@ -31,6 +31,9 @@ public class ActorData implements Serializable {
     @Column(name = "title", nullable = false)
     private String title;
 
+    @Column(name = "pic_url", nullable = true)
+    private String picUrl;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "person_id")
     @JsonIgnoreProperties
@@ -83,9 +86,17 @@ public class ActorData implements Serializable {
     public void setPerson(Person person) {
         this.person = person;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
+    public String getPicUrl() {
+        return picUrl;
+    }
 
+    public void setPicUrl(String picUrl) {
+        this.picUrl = picUrl;
+    }
+    public void setActorPicUrl(String picUrl) {
+            this.picUrl = "https://image.tmdb.org/t/p/w45" + picUrl;
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

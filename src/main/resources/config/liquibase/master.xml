@@ -66,5 +66,12 @@
             </column>
         </addColumn>
     </changeSet>
+    <changeSet author="adrian (generated)" id="1566235943799-9">
+        <addColumn tableName="actor_data">
+            <column name="pic_url" type="VARCHAR(255)" defaultValue="_">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
 
 </databaseChangeLog>
