@@ -58,7 +58,7 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public Optional<Person> findByName(String name) {
-        List<Person> persons = personRepository.findAll().stream().filter(person -> person.getName() != null && person.getName().equalsIgnoreCase(name)).collect(Collectors.toList());
+        List<Person> persons = personRepository.findAll().stream().filter(person -> person.getName() != null && person.getName().toUpperCase().contains(name.toUpperCase())).collect(Collectors.toList());
         if (persons.isEmpty()) {
             return Optional.empty();
         }
