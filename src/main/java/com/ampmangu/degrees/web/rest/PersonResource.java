@@ -177,9 +177,20 @@ public class PersonResource {
         }
     }
 
+    private void setAndExpire(Person person, String key) throws JsonProcessingException {
+        jedisClient.set(key, mapper.writeValueAsString(person));
+        jedisClient.expire(key, 3600);
+    }
+
     private Person getPersonFromProvider(String name) {
         Optional<Person> dbPerson = personService.findByName(name);
         if (dbPerson.isPresent()) {
+            Person person = dbPerson.get();
+            try {
+                setAndExpire(person, stripAccents(person.getName().toUpperCase()));
+            } catch (JsonProcessingException e) {
+                log.warn("Couldn't save in redis user of id " + person.getId(), e);
+            }
             return dbPerson.get();
         } else {
             final PeopleDetail[] result = {new PeopleDetail()};
@@ -191,8 +202,8 @@ public class PersonResource {
             try {
                 String savedName = stripAccents(nameResult[0].toUpperCase());
                 log.info("Saving in cache {} ", savedName);
-                jedisClient.set(savedName, mapper.writeValueAsString(person));
-                jedisClient.set(name.toUpperCase(), mapper.writeValueAsString(person));
+                setAndExpire(person, savedName);
+                setAndExpire(person, name.toUpperCase());
             } catch (JsonProcessingException ex) {
                 log.warn("Couldn't save in redis user of id " + person.getId(), ex);
             }
