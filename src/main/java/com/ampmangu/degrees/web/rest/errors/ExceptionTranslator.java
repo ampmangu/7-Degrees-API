@@ -2,6 +2,7 @@ package com.ampmangu.degrees.web.rest.errors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.ConcurrencyFailureException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -18,6 +19,7 @@ import org.zalando.problem.violations.ConstraintViolationProblem;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
+import java.net.URI;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -100,9 +102,17 @@ public class ExceptionTranslator implements ProblemHandling {
 
     @ExceptionHandler
     public ResponseEntity<Problem> handleBadRequestAlertException(BadRequestAlertException ex, NativeWebRequest request) {
-        throw new UnsupportedOperationException("Not handling this one");
+        return create(ex, request, createFailureAlert(applicationName, false, ex.getEntityName(), ex.getErrorKey(), ex.getMessage()));
     }
+    public static HttpHeaders createFailureAlert(String applicationName, boolean enableTranslation, String entityName, String errorKey, String defaultMessage) {
 
+        String message = enableTranslation ? "error." + errorKey : defaultMessage;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-" + applicationName + "-error", message);
+        headers.add("X-" + applicationName + "-params", entityName);
+        return headers;
+    }
     @ExceptionHandler
     public ResponseEntity<Problem> handleConcurrencyFailure(ConcurrencyFailureException ex, NativeWebRequest request) {
         Problem problem = Problem.builder()

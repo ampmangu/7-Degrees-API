@@ -24,6 +24,7 @@ import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 import redis.clients.jedis.Jedis;
 
@@ -117,6 +118,7 @@ public class PersonResourceIT {
 
 
     @Test
+    @Transactional
     public void createPerson() throws Exception {
         int databaseSizeBeforeCreate = personRepository.findAll().size();
         assertThat(databaseSizeBeforeCreate).isEqualTo(0);
@@ -136,6 +138,23 @@ public class PersonResourceIT {
         assertThat(testPerson.getId()).isNotNull().isGreaterThan(0);
         assertThat(testPerson.getActorDataList()).isNotNull();
         assertThat(testPerson.getActorDataList().size()).isGreaterThan(1);
+    }
+
+    @Test
+    @Transactional
+    public void createPersonWithId() throws Exception {
+        int databaseSizeBeforeCreate = personRepository.findAll().size();
+        assertThat(databaseSizeBeforeCreate).isEqualTo(0);
+        Person person1 = createPerson("chris1.json");
+        assertThat(person1).isNotNull();
+        restPersonMockMvc.perform(post("/api/people")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(person1)))
+                .andExpect(status().isBadRequest());
+
+        // Validate the Person in the database
+        List<Person> personList = personRepository.findAll();
+        assertThat(personList).hasSize(databaseSizeBeforeCreate);
     }
 
     String createObject(String path) throws IOException {
