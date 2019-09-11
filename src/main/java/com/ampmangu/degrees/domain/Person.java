@@ -43,10 +43,10 @@ public class Person implements Serializable {
             orphanRemoval = true, fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties(value = {"leftSidePerson", "rightSidePerson"})
-    private List<PersonRelation> relations;
+    private Set<PersonRelation> relations;
 
-    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL,
-            orphanRemoval = true)
+    @OneToMany(mappedBy = "person", cascade = {CascadeType.MERGE},
+            orphanRemoval = true, fetch = FetchType.EAGER, targetEntity = ActorData.class)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties("person")
     private List<ActorData> actorDataList;
@@ -83,11 +83,11 @@ public class Person implements Serializable {
         this.type = type;
     }
 
-    public List<PersonRelation> getRelations() {
+    public Set<PersonRelation> getRelations() {
         return relations;
     }
 
-    public void setRelations(List<PersonRelation> relations) {
+    public void setRelations(Set<PersonRelation> relations) {
         this.relations = relations;
     }
 

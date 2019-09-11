@@ -10,7 +10,10 @@ import com.ampmangu.degrees.service.ActorDataService;
 import com.ampmangu.degrees.service.PersonRelationService;
 import com.ampmangu.degrees.service.PersonService;
 import com.ampmangu.degrees.web.rest.errors.ExceptionTranslator;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -26,8 +29,10 @@ import redis.clients.jedis.Jedis;
 
 import javax.persistence.EntityManager;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 import static com.ampmangu.degrees.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,7 +50,6 @@ public class PersonResourceIT {
 
     @Autowired
     private ExceptionTranslator exceptionTranslator;
-
 
     @Autowired
     private PersonRepository personRepository;
@@ -77,7 +81,7 @@ public class PersonResourceIT {
 
     private MockMvc restPersonMockMvc;
 
-    private Person person;
+    private ObjectMapper mapper;
 
     @BeforeEach
     public void setup() {
@@ -89,6 +93,10 @@ public class PersonResourceIT {
                 .setConversionService(createFormattingConversionService())
                 .setMessageConverters(jacksonMessageConverter)
                 .setValidator(validator).build();
+        mapper = new ObjectMapper();
+        mapper.findAndRegisterModules();
+        mapper.registerModule(javaTimeModule);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
     public static Person createDefaultEntity(EntityManager em) {
@@ -107,20 +115,37 @@ public class PersonResourceIT {
         return person;
     }
 
-    @BeforeEach
-    public void initTest() {
-        person = createDefaultEntity(em);
-    }
 
     @Test
     public void createPerson() throws Exception {
         int databaseSizeBeforeCreate = personRepository.findAll().size();
         assertThat(databaseSizeBeforeCreate).isEqualTo(0);
-//        // Create the Person
-//        restPersonMockMvc.perform(post("/api/people")
-//                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-//                .content(TestUtil.convertObjectToJsonBytes(person)))
-//                .andExpect(status().isCreated());
+        Person person1 = createPerson("chris1.json");
+        assertThat(person1).isNotNull();
+        person1.setId(null);
+        assertThat(person1).hasFieldOrPropertyWithValue("id", null);
+        restPersonMockMvc.perform(post("/api/people")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(person1)))
+                .andExpect(status().isCreated());
 
+        List<Person> personList = personRepository.findAll();
+        assertThat(personList).hasSize(databaseSizeBeforeCreate + 1);
+        Person testPerson = personList.get(personList.size() - 1);
+        assertThat(testPerson.getName()).isEqualToIgnoringCase("Chris Hemsworth");
+        assertThat(testPerson.getId()).isNotNull().isGreaterThan(0);
+        assertThat(testPerson.getActorDataList()).isNotNull();
+        assertThat(testPerson.getActorDataList().size()).isGreaterThan(1);
+    }
+
+    String createObject(String path) throws IOException {
+        return IOUtils.toString(
+                this.getClass().getResourceAsStream("/fixtures/" + path),
+                "UTF-8"
+        );
+    }
+
+    Person createPerson(String path) throws IOException {
+        return mapper.readValue(this.createObject(path), Person.class);
     }
 }

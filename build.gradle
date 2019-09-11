@@ -162,6 +162,7 @@ dependencies {
     compile group: 'org.springframework', name: 'spring-context', version: '5.+'
     // UTILS
     implementation "org.apache.commons:commons-lang3"
+    compile group: 'commons-io', name: 'commons-io', version: '2.6'
     compile 'commons-lang:commons-lang:2.3'
     compile "javax.cache:cache-api"
     implementation "javax.transaction:javax.transaction-api"

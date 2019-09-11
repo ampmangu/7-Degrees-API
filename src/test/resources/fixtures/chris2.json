@@ -1,0 +1,305 @@
+{
+  "id": 40,
+  "name": "Chris Evans",
+  "dateAdded": "2019-08-28T13:04:46Z",
+  "type": "MOVIES",
+  "remoteDbId": 16828,
+  "relations": [
+    {
+      "id": {
+        "leftSideId": 40,
+        "rightSideId": 7
+      },
+      "stillValid": true
+    },
+    {
+      "id": {
+        "leftSideId": 40,
+        "rightSideId": 38
+      },
+      "stillValid": true
+    },
+    {
+      "id": {
+        "leftSideId": 40,
+        "rightSideId": 36
+      },
+      "stillValid": true
+    },
+    {
+      "id": {
+        "leftSideId": 40,
+        "rightSideId": 21
+      },
+      "stillValid": true
+    },
+    {
+      "id": {
+        "leftSideId": 40,
+        "rightSideId": 24
+      },
+      "stillValid": true
+    },
+    {
+      "id": {
+        "leftSideId": 40,
+        "rightSideId": 35
+      },
+      "stillValid": true
+    },
+    {
+      "id": {
+        "leftSideId": 40,
+        "rightSideId": 42
+      },
+      "stillValid": true
+    }
+  ],
+  "actorDataList": [
+    {
+      "id": 1821,
+      "remoteDbId": 1266,
+      "title": "Street Kings"
+    },
+    {
+      "id": 1822,
+      "remoteDbId": 1272,
+      "title": "Sunshine"
+    },
+    {
+      "id": 1823,
+      "remoteDbId": 1273,
+      "title": "TMNT"
+    },
+    {
+      "id": 1824,
+      "remoteDbId": 1771,
+      "title": "Captain America: The First Avenger"
+    },
+    {
+      "id": 1825,
+      "remoteDbId": 1979,
+      "title": "Fantastic Four: Rise of the Silver Surfer"
+    },
+    {
+      "id": 1826,
+      "remoteDbId": 11397,
+      "title": "Not Another Teen Movie"
+    },
+    {
+      "id": 1827,
+      "remoteDbId": 22538,
+      "title": "Scott Pilgrim vs. the World"
+    },
+    {
+      "id": 1828,
+      "remoteDbId": 7515,
+      "title": "London"
+    },
+    {
+      "id": 1829,
+      "remoteDbId": 24428,
+      "title": "The Avengers"
+    },
+    {
+      "id": 1830,
+      "remoteDbId": 12435,
+      "title": "The Nanny Diaries"
+    },
+    {
+      "id": 1831,
+      "remoteDbId": 9759,
+      "title": "Cellular"
+    },
+    {
+      "id": 1832,
+      "remoteDbId": 13455,
+      "title": "Push"
+    },
+    {
+      "id": 1833,
+      "remoteDbId": 13505,
+      "title": "The Perfect Score"
+    },
+    {
+      "id": 1834,
+      "remoteDbId": 34813,
+      "title": "The Losers"
+    },
+    {
+      "id": 1835,
+      "remoteDbId": 28424,
+      "title": "The Loss of a Teardrop Diamond"
+    },
+    {
+      "id": 1836,
+      "remoteDbId": 63492,
+      "title": "What's Your Number?"
+    },
+    {
+      "id": 1837,
+      "remoteDbId": 68812,
+      "title": "The Iceman"
+    },
+    {
+      "id": 1838,
+      "remoteDbId": 19583,
+      "title": "Fierce People"
+    },
+    {
+      "id": 1839,
+      "remoteDbId": 72432,
+      "title": "Puncture"
+    },
+    {
+      "id": 1840,
+      "remoteDbId": 100402,
+      "title": "Captain America: The Winter Soldier"
+    },
+    {
+      "id": 1841,
+      "remoteDbId": 99861,
+      "title": "Avengers: Age of Ultron"
+    },
+    {
+      "id": 1842,
+      "remoteDbId": 110415,
+      "title": "Snowpiercer"
+    },
+    {
+      "id": 1843,
+      "remoteDbId": 283350,
+      "title": "Before We Go"
+    },
+    {
+      "id": 1844,
+      "remoteDbId": 277547,
+      "title": "Playing It Cool"
+    },
+    {
+      "id": 1845,
+      "remoteDbId": 291718,
+      "title": "On the Front Line"
+    },
+    {
+      "id": 1846,
+      "remoteDbId": 299969,
+      "title": "Marvel: 75 Years, From Pulp to Pop!"
+    },
+    {
+      "id": 1847,
+      "remoteDbId": 299536,
+      "title": "Avengers: Infinity War"
+    },
+    {
+      "id": 1848,
+      "remoteDbId": 134803,
+      "title": "The Newcomers"
+    },
+    {
+      "id": 1849,
+      "remoteDbId": 259910,
+      "title": "Marvel Studios: Assembling a Universe"
+    },
+    {
+      "id": 1850,
+      "remoteDbId": 379040,
+      "title": "Marvel's Captain America: 75 Heroic Years"
+    },
+    {
+      "id": 1851,
+      "remoteDbId": 271110,
+      "title": "Captain America: Civil War"
+    },
+    {
+      "id": 1852,
+      "remoteDbId": 400928,
+      "title": "Gifted"
+    },
+    {
+      "id": 1853,
+      "remoteDbId": 76338,
+      "title": "Thor: The Dark World"
+    },
+    {
+      "id": 1854,
+      "remoteDbId": 9738,
+      "title": "Fantastic Four"
+    },
+    {
+      "id": 1855,
+      "remoteDbId": 299534,
+      "title": "Avengers: Endgame"
+    },
+    {
+      "id": 1856,
+      "remoteDbId": 448354,
+      "title": "Outfitting a Hero"
+    },
+    {
+      "id": 1857,
+      "remoteDbId": 448366,
+      "title": "Building the Dream: Assembling the Avengers"
+    },
+    {
+      "id": 1858,
+      "remoteDbId": 448378,
+      "title": "United We Stand, Divided We Fall: The Making of 'Captain America: Civil War'"
+    },
+    {
+      "id": 1859,
+      "remoteDbId": 315635,
+      "title": "Spider-Man: Homecoming"
+    },
+    {
+      "id": 1860,
+      "remoteDbId": 16873,
+      "title": "Battle for Terra"
+    },
+    {
+      "id": 1861,
+      "remoteDbId": 465003,
+      "title": "The Red Sea Diving Resort"
+    },
+    {
+      "id": 1862,
+      "remoteDbId": 474840,
+      "title": "Captain America: The Road to Civil War"
+    },
+    {
+      "id": 1863,
+      "remoteDbId": 211387,
+      "title": "Marvel One-Shot: Agent Carter"
+    },
+    {
+      "id": 1864,
+      "remoteDbId": 102899,
+      "title": "Ant-Man"
+    },
+    {
+      "id": 1865,
+      "remoteDbId": 546554,
+      "title": "Knives Out"
+    },
+    {
+      "id": 1866,
+      "remoteDbId": 448357,
+      "title": "Captain America: The First Avenger - Heightened Technology"
+    },
+    {
+      "id": 1867,
+      "remoteDbId": 577721,
+      "title": "Superpower Dogs"
+    },
+    {
+      "id": 1868,
+      "remoteDbId": 299537,
+      "title": "Captain Marvel"
+    },
+    {
+      "id": 1869,
+      "remoteDbId": 622707,
+      "title": "Jekyll"
+    }
+  ]
+}

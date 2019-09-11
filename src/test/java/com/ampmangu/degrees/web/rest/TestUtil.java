@@ -29,7 +29,9 @@ public final class TestUtil {
 
     private static final ObjectMapper mapper = createObjectMapper();
 
-    /** MediaType for JSON UTF8 */
+    /**
+     * MediaType for JSON UTF8
+     */
     public static final MediaType APPLICATION_JSON_UTF8 = MediaType.APPLICATION_JSON_UTF8;
 
     private static ObjectMapper createObjectMapper() {
@@ -86,7 +88,7 @@ public final class TestUtil {
                 return true;
             } catch (DateTimeParseException e) {
                 mismatchDescription.appendText("was ").appendValue(item)
-                    .appendText(", which could not be parsed as a ZonedDateTime");
+                        .appendText(", which could not be parsed as a ZonedDateTime");
                 return false;
             }
 
@@ -100,6 +102,7 @@ public final class TestUtil {
 
     /**
      * Creates a matcher that matches when the examined string represents the same instant as the reference datetime.
+     *
      * @param date the reference datetime against which the examined string is checked.
      */
     public static ZonedDateTimeMatcher sameInstant(ZonedDateTime date) {
@@ -127,6 +130,7 @@ public final class TestUtil {
 
     /**
      * Create a {@link FormattingConversionService} which use ISO date format, instead of the localized one.
+     *
      * @return the {@link FormattingConversionService}.
      */
     public static FormattingConversionService createFormattingConversionService() {
@@ -139,8 +143,9 @@ public final class TestUtil {
 
     /**
      * Makes a an executes a query to the EntityManager finding all stored objects.
-     * @param <T> The type of objects to be searched
-     * @param em The instance of the EntityManager
+     *
+     * @param <T>  The type of objects to be searched
+     * @param em   The instance of the EntityManager
      * @param clss The class type to be searched
      * @return A list of all found objects
      */
@@ -153,5 +158,6 @@ public final class TestUtil {
         return allQuery.getResultList();
     }
 
-    private TestUtil() {}
+    private TestUtil() {
+    }
 }
