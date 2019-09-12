@@ -147,11 +147,15 @@ public class PersonResource {
             Integer maxId = max.get().getRemoteDbId();
             for (int remoteId = maxId; remoteId < maxId + 10; remoteId = remoteId + 1) {
                 final String[] name = new String[1];
+                final String[] profilePicPath = {"_"};
                 movieDBService.getActorBasicInfo(remoteId).subscribe(
-                        basicPerson -> name[0] = basicPerson.getName()
+                        basicPerson -> {
+                            name[0] = basicPerson.getName();
+                            profilePicPath[0] = basicPerson.getProfilePath();
+                        }
                 );
                 PeopleDetail peopleDetail = processPersonRequest(remoteId, movieDBService);
-                Person person = savePerson(peopleDetail, name[0], personService, actorDataService);
+                Person person = savePerson(peopleDetail, name[0], profilePicPath[0], personService, actorDataService);
                 idList.add(person.getRemoteDbId());
             }
         }
@@ -196,9 +200,11 @@ public class PersonResource {
             final PeopleDetail[] result = {new PeopleDetail()};
             Observable<PeopleResults> actorObs = movieDBService.getActorList(name);
             final String[] nameResult = {""};
+            final String[] profilePicPath = {""};
             actorObs.subscribe(actor -> nameResult[0] = actor.getResults().get(0).getName() != null ? actor.getResults().get(0).getName() : name);
+            actorObs.subscribe(actor -> profilePicPath[0] = actor.getResults().get(0).getProfilePath() != null ? actor.getResults().get(0).getProfilePath() : "_");
             actorObs.subscribe(actor -> result[0] = processPersonRequest(actor.getResults().get(0).getId(), movieDBService), this::processError);
-            Person person = savePerson(result[0], nameResult[0], personService, actorDataService);
+            Person person = savePerson(result[0], nameResult[0], profilePicPath[0], personService, actorDataService);
             try {
                 String savedName = stripAccents(nameResult[0].toUpperCase());
                 log.info("Saving in cache {} ", savedName);
