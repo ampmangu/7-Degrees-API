@@ -40,6 +40,9 @@ public class Person implements Serializable {
     @Column(name = "remote_db_id")
     private Integer remoteDbId;
 
+    @Column(name = "pic_url", nullable = true)
+    private String picUrl;
+
     @OneToMany(mappedBy = "leftSidePerson", cascade = {CascadeType.PERSIST, CascadeType.REFRESH},
             orphanRemoval = true, fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
@@ -110,6 +113,19 @@ public class Person implements Serializable {
 
     public void setRemoteDbId(Integer remoteDbId) {
         this.remoteDbId = remoteDbId;
+    }
+
+    public String getPicUrl() {
+        return picUrl;
+    }
+
+    public void setPicUrl(String picUrl) {
+        if (this.getType()==TypePerson.MOVIES) {
+            this.picUrl = "https://image.tmdb.org/t/p/w45" + picUrl;
+            //TODO Add future picurl servers
+        } else {
+            this.picUrl = picUrl;
+        }
     }
 
     @Override
