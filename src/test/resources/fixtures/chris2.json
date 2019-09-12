@@ -4,57 +4,7 @@
   "dateAdded": "2019-08-28T13:04:46Z",
   "type": "MOVIES",
   "remoteDbId": 16828,
-  "relations": [
-    {
-      "id": {
-        "leftSideId": 40,
-        "rightSideId": 7
-      },
-      "stillValid": true
-    },
-    {
-      "id": {
-        "leftSideId": 40,
-        "rightSideId": 38
-      },
-      "stillValid": true
-    },
-    {
-      "id": {
-        "leftSideId": 40,
-        "rightSideId": 36
-      },
-      "stillValid": true
-    },
-    {
-      "id": {
-        "leftSideId": 40,
-        "rightSideId": 21
-      },
-      "stillValid": true
-    },
-    {
-      "id": {
-        "leftSideId": 40,
-        "rightSideId": 24
-      },
-      "stillValid": true
-    },
-    {
-      "id": {
-        "leftSideId": 40,
-        "rightSideId": 35
-      },
-      "stillValid": true
-    },
-    {
-      "id": {
-        "leftSideId": 40,
-        "rightSideId": 42
-      },
-      "stillValid": true
-    }
-  ],
+  "relations": null,
   "actorDataList": [
     {
       "id": 1821,

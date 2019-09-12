@@ -8,6 +8,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -43,7 +44,7 @@ public class Person implements Serializable {
             orphanRemoval = true, fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties(value = {"leftSidePerson", "rightSidePerson"})
-    private Set<PersonRelation> relations;
+    private Set<PersonRelation> relations = new HashSet<>();
 
     @OneToMany(mappedBy = "person", cascade = {CascadeType.MERGE},
             orphanRemoval = true, fetch = FetchType.EAGER, targetEntity = ActorData.class)

@@ -2,7 +2,9 @@ package com.ampmangu.degrees.web.rest;
 
 
 import com.ampmangu.degrees.Application;
+import com.ampmangu.degrees.domain.ActorData;
 import com.ampmangu.degrees.domain.Person;
+import com.ampmangu.degrees.domain.PersonRelation;
 import com.ampmangu.degrees.domain.TypePerson;
 import com.ampmangu.degrees.remote.MovieDBService;
 import com.ampmangu.degrees.repository.PersonRepository;
@@ -14,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.commons.io.IOUtils;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -29,11 +32,13 @@ import org.springframework.validation.Validator;
 import redis.clients.jedis.Jedis;
 
 import javax.persistence.EntityManager;
-
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.ampmangu.degrees.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -157,6 +162,71 @@ public class PersonResourceIT {
         assertThat(personList).hasSize(databaseSizeBeforeCreate);
     }
 
+    @Test
+    @Transactional
+    public void createTwoDifferentPeople() throws Exception {
+        int databaseSizeBeforeCreate = personRepository.findAll().size();
+        assertThat(databaseSizeBeforeCreate).isEqualTo(0);
+        Person person1 = createPerson("chris1.json");
+        assertThat(person1).isNotNull();
+        person1.setId(null);
+        assertThat(person1).hasFieldOrPropertyWithValue("id", null);
+        restPersonMockMvc.perform(post("/api/people")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(person1)))
+                .andExpect(status().isCreated());
+        Person person2 = createPerson("chris2.json");
+        assertThat(person2).isNotNull();
+        person2.setId(null);
+        assertThat(person2).hasFieldOrPropertyWithValue("id", null);
+        restPersonMockMvc.perform(post("/api/people")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(person2)))
+                .andExpect(status().isCreated());
+        List<Person> personList = personRepository.findAll();
+        assertThat(personList).hasSize(databaseSizeBeforeCreate + 2);
+        assertThat(actorDataIsDifferent(personList.get(0).getActorDataList(), person1.getActorDataList())).isTrue();
+        assertThat(actorDataIsDifferent(personList.get(1).getActorDataList(), person2.getActorDataList())).isTrue();
+        assertThat(actorDataIsDifferent(personList.get(0).getActorDataList(), personList.get(1).getActorDataList())).isFalse();
+        assertThat(personList.get(0).getId()).isNotEqualTo(personList.get(1).getId());
+    }
+
+    @Test
+    @Transactional
+    public void createTwoAndCreateRelations() throws Exception {
+        int databaseSizeBeforeCreate = personRepository.findAll().size();
+        assertThat(databaseSizeBeforeCreate).isEqualTo(0);
+        Person person1 = createPerson("chris1.json");
+        assertThat(person1).isNotNull();
+        person1.setId(null);
+        assertThat(person1).hasFieldOrPropertyWithValue("id", null);
+        restPersonMockMvc.perform(post("/api/people")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(person1)))
+                .andExpect(status().isCreated());
+        Person person2 = createPerson("chris2.json");
+        assertThat(person2).isNotNull();
+        person2.setId(null);
+        assertThat(person2).hasFieldOrPropertyWithValue("id", null);
+        restPersonMockMvc.perform(post("/api/people")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(person2)))
+                .andExpect(status().isCreated());
+        List<Person> personList = personRepository.findAll();
+        assertThat(personList).hasSize(databaseSizeBeforeCreate + 2);
+        PersonResource.forceTraversal(actorDataService, personRelationService, personService);
+        personList = personRepository.findAll();
+        assertThat(personList.get(0).getRelations()).isNotNull().hasAtLeastOneElementOfType(PersonRelation.class);
+        Set<PersonRelation> relations = personList.get(0).getRelations();
+        Optional<PersonRelation> personRelation = relations.stream().findAny();
+        assertThat(personRelation).isNotEmpty();
+        @SuppressWarnings("OptionalGetWithoutIsPresent")
+        PersonRelation personRelation1 = personRelation.get();
+        assertThat(personRelation1).isNotNull();
+        org.hamcrest.MatcherAssert.assertThat(personRelation1.getLeftSidePerson().getName(), Matchers.either(Matchers.is(person1.getName())).or(Matchers.is(person2.getName())));
+    }
+
+    //test to create the relations maybe?
     String createObject(String path) throws IOException {
         return IOUtils.toString(
                 this.getClass().getResourceAsStream("/fixtures/" + path),
@@ -166,5 +236,17 @@ public class PersonResourceIT {
 
     Person createPerson(String path) throws IOException {
         return mapper.readValue(this.createObject(path), Person.class);
+    }
+
+    boolean actorDataIsDifferent(List<ActorData> originalActorDataList, List<ActorData> savedActorDataList) {
+        boolean acc = true;
+        Set<String> titles = new HashSet<>();
+        originalActorDataList.forEach(actorData -> titles.add(actorData.getTitle()));
+        for (ActorData actorData : savedActorDataList) {
+            if (titles.add(actorData.getTitle())) {
+                acc = false;
+            }
+        }
+        return acc;
     }
 }
