@@ -259,6 +259,29 @@ public class PersonResourceIT {
                 .andExpect(jsonPath("$.to.name").value(person2.getName()));
     }
 
+    @Test
+    @Transactional
+    public void getDegreeZero() throws Exception {
+        int databaseSizeBeforeCreate = personRepository.findAll().size();
+        assertThat(databaseSizeBeforeCreate).isEqualTo(0);
+        Person person1 = createPerson("chris1.json");
+        assertThat(person1).isNotNull();
+        person1.setId(null);
+        assertThat(person1).hasFieldOrPropertyWithValue("id", null);
+        restPersonMockMvc.perform(post("/api/people")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(person1)))
+                .andExpect(status().isCreated());
+        List<Person> personList = personRepository.findAll();
+        assertThat(personList).hasSize(databaseSizeBeforeCreate + 1);
+        restPersonMockMvc.perform(get("/api/people/actor/{name1}/{name2}", person1.getName(), person1.getName()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.degrees").value(0))
+                .andExpect(jsonPath("$.from.name").value(person1.getName()))
+                .andExpect(jsonPath("$.to.name").value(person1.getName()));
+    }
+
     String createObject(String path) throws IOException {
         return IOUtils.toString(
                 this.getClass().getResourceAsStream("/fixtures/" + path),
