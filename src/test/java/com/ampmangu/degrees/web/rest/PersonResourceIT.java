@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -42,8 +43,9 @@ import java.util.Set;
 
 import static com.ampmangu.degrees.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(classes = Application.class)
 public class PersonResourceIT {
@@ -226,7 +228,37 @@ public class PersonResourceIT {
         org.hamcrest.MatcherAssert.assertThat(personRelation1.getLeftSidePerson().getName(), Matchers.either(Matchers.is(person1.getName())).or(Matchers.is(person2.getName())));
     }
 
-    //test to create the relations maybe?
+    @Test
+    @Transactional
+    public void getDegreeOneOfActors() throws Exception {
+        int databaseSizeBeforeCreate = personRepository.findAll().size();
+        assertThat(databaseSizeBeforeCreate).isEqualTo(0);
+        Person person1 = createPerson("chris1.json");
+        assertThat(person1).isNotNull();
+        person1.setId(null);
+        assertThat(person1).hasFieldOrPropertyWithValue("id", null);
+        restPersonMockMvc.perform(post("/api/people")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(person1)))
+                .andExpect(status().isCreated());
+        Person person2 = createPerson("chris2.json");
+        assertThat(person2).isNotNull();
+        person2.setId(null);
+        assertThat(person2).hasFieldOrPropertyWithValue("id", null);
+        restPersonMockMvc.perform(post("/api/people")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(person2)))
+                .andExpect(status().isCreated());
+        List<Person> personList = personRepository.findAll();
+        assertThat(personList).hasSize(databaseSizeBeforeCreate + 2);
+        restPersonMockMvc.perform(get("/api/people/actor/{name1}/{name2}", person1.getName(), person2.getName()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.degrees").value(1))
+                .andExpect(jsonPath("$.from.name").value(person1.getName()))
+                .andExpect(jsonPath("$.to.name").value(person2.getName()));
+    }
+
     String createObject(String path) throws IOException {
         return IOUtils.toString(
                 this.getClass().getResourceAsStream("/fixtures/" + path),
