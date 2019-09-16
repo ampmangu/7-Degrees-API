@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import static com.ampmangu.degrees.config.Constants.MOVIE_DB_API_KEY;
+import static com.ampmangu.degrees.config.Constants.SYSTEM_MOVIE_DB_API_KEY;
 
 @SpringBootApplication
 @EnableConfigurationProperties({LiquibaseProperties.class})
@@ -24,7 +25,7 @@ public class Application implements InitializingBean {
     private static final Logger log = LoggerFactory.getLogger(Application.class);
 
     private final Environment env;
-    private static final String API_KEY = MOVIE_DB_API_KEY;
+    public static String API_KEY;
 
     public Application(Environment env) {
         this.env = env;
@@ -36,9 +37,14 @@ public class Application implements InitializingBean {
      * @param args the command line arguments.
      */
     public static void main(String[] args) {
-        if (API_KEY.equalsIgnoreCase("unset")) {
+        if (MOVIE_DB_API_KEY.equalsIgnoreCase("unset") && SYSTEM_MOVIE_DB_API_KEY == null) {
             log.error("FATAL ERROR, API KEY IS NOT SET");
             return;
+        }
+        if (!MOVIE_DB_API_KEY.equalsIgnoreCase("unset")) {
+            API_KEY = MOVIE_DB_API_KEY;
+        } else if (SYSTEM_MOVIE_DB_API_KEY != null) {
+            API_KEY = SYSTEM_MOVIE_DB_API_KEY;
         }
         SpringApplication app = new SpringApplication(Application.class);
         DefaultProfileUtil.addDefaultProfile(app);

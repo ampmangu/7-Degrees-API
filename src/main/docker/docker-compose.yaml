@@ -23,8 +23,13 @@ services:
   7degrees-redis:
     tty: true
     image: redis:latest
-    command: redis-server --requirepass 73656775726f64656e74616c6c6973616e65636573697461756e6170617261746f
-    ports:
-      - "6378:6379"
+    command: redis-server /usr/local/etc/redis/redis.conf --requirepass 73656775726f64656e74616c6c6973616e65636573697461756e6170617261746f
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    expose:
+      - 6379
     environment:
       - pass=73656775726f64656e74616c6c6973616e65636573697461756e6170617261746f
+networks:
+  7degreesnet:
+    driver: bridge
