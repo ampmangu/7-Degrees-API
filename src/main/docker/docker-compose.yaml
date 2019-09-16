@@ -1,6 +1,6 @@
 version: '2'
 services:
-  7dbtest-app:
+  7degrees-app:
     image: 7degrees
     depends_on:
       - 7degrees-mariadb
