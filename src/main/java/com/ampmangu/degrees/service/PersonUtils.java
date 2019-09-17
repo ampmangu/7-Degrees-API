@@ -30,15 +30,18 @@ public class PersonUtils {
 
     public static void saveRelation(List<Person> actorDataList, PersonRelationService personRelationService, PersonService personService) {
         int position = 0;
+        int saved = 0;
         for (Person person : actorDataList) {
             List<Person> nextPersons = new ArrayList<>(actorDataList);
             nextPersons.remove(position);
             for (Person otherPerson : nextPersons) {
                 saveRelation(person, otherPerson, personRelationService, personService);
                 saveRelation(otherPerson, person, personRelationService, personService);
+                saved = saved + 1;
             }
             position = position + 1;
         }
+        log.info("Saved {} relations", saved);
     }
 
     private static void saveRelation(Person person, Person otherPerson, PersonRelationService personRelationService, PersonService personService) {

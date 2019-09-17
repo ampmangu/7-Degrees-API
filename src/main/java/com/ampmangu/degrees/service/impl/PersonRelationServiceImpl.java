@@ -25,7 +25,6 @@ public class PersonRelationServiceImpl implements PersonRelationService {
 
     @Override
     public PersonRelation save(PersonRelation personRelation) {
-        log.info("Saving relation {}", personRelation);
         return personRelationRepository.save(personRelation);
     }
 
