@@ -16,7 +16,7 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collection;
 
-import static com.ampmangu.degrees.config.Constants.MOVIE_DB_API_KEY;
+import static com.ampmangu.degrees.config.Constants.*;
 
 @SpringBootApplication
 @EnableConfigurationProperties({LiquibaseProperties.class})
@@ -25,7 +25,7 @@ public class Application implements InitializingBean {
 
     private final Environment env;
     private static final String API_KEY = MOVIE_DB_API_KEY;
-
+    public static String MASTER_TOKEN;
     public Application(Environment env) {
         this.env = env;
     }
@@ -39,6 +39,16 @@ public class Application implements InitializingBean {
         if (API_KEY.equalsIgnoreCase("unset")) {
             log.error("FATAL ERROR, API KEY IS NOT SET");
             return;
+        }
+
+        if (JWT_MASTER_TOKEN.equalsIgnoreCase("unset") && JWT_MASTER_TOKEN_SYSTEM == null) {
+            log.error("JWT TOKEN NOT SET");
+            return;
+        }
+        if (!JWT_MASTER_TOKEN.equalsIgnoreCase("unset")) {
+            MASTER_TOKEN = JWT_MASTER_TOKEN;
+        } else if (JWT_MASTER_TOKEN_SYSTEM != null) {
+            MASTER_TOKEN = JWT_MASTER_TOKEN_SYSTEM;
         }
         SpringApplication app = new SpringApplication(Application.class);
         DefaultProfileUtil.addDefaultProfile(app);

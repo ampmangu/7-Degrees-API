@@ -46,6 +46,7 @@ configurations {
 }
 bootRun {
     systemProperty 'MOVIE_DB_API_KEY', MOVIE_DB_KEY
+    systemProperty 'JWT_MASTER_TOKEN', JWT_MASTER_TOKEN
 }
 
 springBoot {
