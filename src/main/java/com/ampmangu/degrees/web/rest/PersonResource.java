@@ -27,6 +27,7 @@ import java.util.*;
 
 import static com.ampmangu.degrees.remote.MovieDBUtils.processPersonRequest;
 import static com.ampmangu.degrees.remote.MovieDBUtils.savePerson;
+import static com.ampmangu.degrees.security.SecurityUtils.checkToken;
 import static com.ampmangu.degrees.service.PersonUtils.degreesSeparation;
 import static com.ampmangu.degrees.service.PersonUtils.saveRelation;
 import static java.util.stream.Collectors.toList;
@@ -124,11 +125,12 @@ public class PersonResource {
 
     @GetMapping("/people/actor/{name1}/{name2}")
     @ResponseBody
-    public ResponseEntity<DegreeResponse> getDegrees(@PathVariable String name1, @PathVariable String name2) {
+    public ResponseEntity<DegreeResponse> getDegrees(@PathVariable String name1, @PathVariable String name2, @RequestHeader("auth-token") String token) {
         //We either ensure having it or getting it fresh
-        ResponseEntity<Person> firstResponseEntity = getPerson(name1);
+        checkToken(token);
+        ResponseEntity<Person> firstResponseEntity = getPerson(name1, token);
         Person firstPerson = firstResponseEntity.getBody();
-        ResponseEntity<Person> secondResponseEntity = getPerson(name2);
+        ResponseEntity<Person> secondResponseEntity = getPerson(name2, token);
         Person secondPerson = secondResponseEntity.getBody();
         if (firstPerson.getName().equalsIgnoreCase(secondPerson.getName())) {
             return ResponseEntity.ok().body(new DegreeResponse(firstPerson, firstPerson, 0));
@@ -163,7 +165,8 @@ public class PersonResource {
     }
 
     @GetMapping("/people/actor/{name}/")
-    public ResponseEntity<Person> getPerson(@PathVariable String name) {
+    public ResponseEntity<Person> getPerson(@PathVariable String name, @RequestHeader("auth-token") String token) {
+        checkToken(token);
         log.info("Looking for actor {} ", name);
         String personCached = jedisClient.get(name.toUpperCase());
         if (personCached != null && !personCached.isEmpty()) {
