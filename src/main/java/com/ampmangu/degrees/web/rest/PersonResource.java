@@ -23,6 +23,7 @@ import redis.clients.jedis.Jedis;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
 import java.util.*;
 
 import static com.ampmangu.degrees.remote.MovieDBUtils.processPersonRequest;
@@ -44,11 +45,11 @@ public class PersonResource {
 
     private final PersonRelationService personRelationService;
 
-    private MovieDBService movieDBService;
+    private final MovieDBService movieDBService;
 
-    private Jedis jedisClient;
+    private final Jedis jedisClient;
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     PersonResource(PersonService personService, MovieDBService dbService, ActorDataService actorDataService, Jedis jedisClient, JavaTimeModule javaTimeModule, PersonRelationService personRelationService) {
         this.personService = personService;
@@ -125,7 +126,7 @@ public class PersonResource {
 
     @GetMapping("/people/actor/{name1}/{name2}")
     @ResponseBody
-    public ResponseEntity<DegreeResponse> getDegrees(@PathVariable String name1, @PathVariable String name2, @RequestHeader("auth-token") String token) {
+    public ResponseEntity<DegreeResponse> getDegrees(@PathVariable String name1, @PathVariable String name2, @RequestHeader("auth-token") String token) throws InvalidKeyException {
         //We either ensure having it or getting it fresh
         checkToken(token);
         ResponseEntity<Person> firstResponseEntity = getPerson(name1, token);
@@ -165,7 +166,7 @@ public class PersonResource {
     }
 
     @GetMapping("/people/actor/{name}/")
-    public ResponseEntity<Person> getPerson(@PathVariable String name, @RequestHeader("auth-token") String token) {
+    public ResponseEntity<Person> getPerson(@PathVariable String name, @RequestHeader("auth-token") String token) throws InvalidKeyException {
         checkToken(token);
         log.info("Looking for actor {} ", name);
         String personCached = jedisClient.get(name.toUpperCase());

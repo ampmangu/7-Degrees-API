@@ -35,7 +35,7 @@ public class MovieDBUtils {
 
     public static Person savePerson(PeopleDetail person, String name, String profilePath, PersonService personService, ActorDataService actorDataService) {
         if (personService.existsByRemoteId(person.getId())) {
-            return updateActor(person, name, personService, actorDataService);
+            return updateActor(person, personService, actorDataService);
         }
         Person personToSave = new Person();
         personToSave.setName(name);
@@ -52,7 +52,7 @@ public class MovieDBUtils {
         return personService.save(savedPerson);
     }
 
-    private static Person updateActor(PeopleDetail person, String name, PersonService personService, ActorDataService actorDataService) {
+    private static Person updateActor(PeopleDetail person, PersonService personService, ActorDataService actorDataService) {
         Person actor = personService.findByRemoteId(person.getId()).get();
         List<ActorData> actorDataList = new ArrayList<>();
         for (Cast cast : person.getCast()) {
