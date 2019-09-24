@@ -14,7 +14,7 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static com.ampmangu.degrees.config.Constants.MOVIE_DB_API_KEY;
+import static com.ampmangu.degrees.Application.API_KEY;
 
 @Service
 public class MovieDBServiceFactory {
@@ -46,7 +46,7 @@ public class MovieDBServiceFactory {
             Request original = chain.request();
             HttpUrl originalHttpUrl = original.url();
             HttpUrl url = originalHttpUrl.newBuilder().
-                    addQueryParameter("api_key", MOVIE_DB_API_KEY).build();
+                        addQueryParameter("api_key", API_KEY).build();
             Request.Builder requestBuilder = original.newBuilder().url(url);
             return chain.proceed(requestBuilder.build());
         });

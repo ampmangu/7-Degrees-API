@@ -1,0 +1,200 @@
+{
+  "id": 42,
+  "name": "Chris Hemsworth",
+  "dateAdded": "2019-08-29T08:49:38.456Z",
+  "type": "MOVIES",
+  "remoteDbId": 74568,
+  "relations": null,
+  "actorDataList": [
+    {
+      "id": 1936,
+      "remoteDbId": 22970,
+      "title": "The Cabin in the Woods"
+    },
+    {
+      "id": 1937,
+      "remoteDbId": 24428,
+      "title": "The Avengers"
+    },
+    {
+      "id": 1938,
+      "remoteDbId": 12403,
+      "title": "A Perfect Getaway"
+    },
+    {
+      "id": 1939,
+      "remoteDbId": 27004,
+      "title": "Ca$h"
+    },
+    {
+      "id": 1940,
+      "remoteDbId": 13475,
+      "title": "Star Trek"
+    },
+    {
+      "id": 1941,
+      "remoteDbId": 60747,
+      "title": "Red Dawn"
+    },
+    {
+      "id": 1942,
+      "remoteDbId": 45920,
+      "title": "Ollie Klublershturf vs. the Nazis"
+    },
+    {
+      "id": 1943,
+      "remoteDbId": 76338,
+      "title": "Thor: The Dark World"
+    },
+    {
+      "id": 1944,
+      "remoteDbId": 58595,
+      "title": "Snow White and the Huntsman"
+    },
+    {
+      "id": 1945,
+      "remoteDbId": 96721,
+      "title": "Rush"
+    },
+    {
+      "id": 1946,
+      "remoteDbId": 99861,
+      "title": "Avengers: Age of Ultron"
+    },
+    {
+      "id": 1947,
+      "remoteDbId": 205775,
+      "title": "In the Heart of the Sea"
+    },
+    {
+      "id": 1948,
+      "remoteDbId": 259910,
+      "title": "Marvel Studios: Assembling a Universe"
+    },
+    {
+      "id": 1949,
+      "remoteDbId": 201088,
+      "title": "Blackhat"
+    },
+    {
+      "id": 1950,
+      "remoteDbId": 290595,
+      "title": "The Huntsman: Winter's War"
+    },
+    {
+      "id": 1951,
+      "remoteDbId": 296099,
+      "title": "Vacation"
+    },
+    {
+      "id": 1952,
+      "remoteDbId": 284053,
+      "title": "Thor: Ragnarok"
+    },
+    {
+      "id": 1953,
+      "remoteDbId": 54138,
+      "title": "Star Trek Into Darkness"
+    },
+    {
+      "id": 1954,
+      "remoteDbId": 299536,
+      "title": "Avengers: Infinity War"
+    },
+    {
+      "id": 1955,
+      "remoteDbId": 43074,
+      "title": "Ghostbusters"
+    },
+    {
+      "id": 1956,
+      "remoteDbId": 10195,
+      "title": "Thor"
+    },
+    {
+      "id": 1957,
+      "remoteDbId": 413279,
+      "title": "Team Thor"
+    },
+    {
+      "id": 1958,
+      "remoteDbId": 284052,
+      "title": "Doctor Strange"
+    },
+    {
+      "id": 1959,
+      "remoteDbId": 429351,
+      "title": "12 Strong"
+    },
+    {
+      "id": 1960,
+      "remoteDbId": 299534,
+      "title": "Avengers: Endgame"
+    },
+    {
+      "id": 1961,
+      "remoteDbId": 441829,
+      "title": "Team Thor: Part 2"
+    },
+    {
+      "id": 1962,
+      "remoteDbId": 448360,
+      "title": "Thor: From Asgard to Earth"
+    },
+    {
+      "id": 1963,
+      "remoteDbId": 467903,
+      "title": "Untitled Star Trek Sequel"
+    },
+    {
+      "id": 1964,
+      "remoteDbId": 446021,
+      "title": "Bad Times at the El Royale"
+    },
+    {
+      "id": 1965,
+      "remoteDbId": 155776,
+      "title": "Heroes and Demons"
+    },
+    {
+      "id": 1966,
+      "remoteDbId": 545609,
+      "title": "Dhaka"
+    },
+    {
+      "id": 1967,
+      "remoteDbId": 448363,
+      "title": "Thor: Assembling the Troupe"
+    },
+    {
+      "id": 1968,
+      "remoteDbId": 558912,
+      "title": "Beyond Boundaries: The Harvey Weinstein Scandal"
+    },
+    {
+      "id": 1969,
+      "remoteDbId": 479455,
+      "title": "Men in Black: International"
+    },
+    {
+      "id": 1970,
+      "remoteDbId": 440762,
+      "title": "Jay and Silent Bob Reboot"
+    },
+    {
+      "id": 1971,
+      "remoteDbId": 614927,
+      "title": "Down Under Cover"
+    },
+    {
+      "id": 1972,
+      "remoteDbId": 615674,
+      "title": "Untitled Hulk Hogan Biopic"
+    },
+    {
+      "id": 1973,
+      "remoteDbId": 616037,
+      "title": "Thor: Love and Thunder"
+    }
+  ]
+}
