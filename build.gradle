@@ -47,6 +47,7 @@ configurations {
 }
 bootRun {
     systemProperty 'MOVIE_DB_API_KEY', MOVIE_DB_KEY
+    systemProperty 'JWT_MASTER_TOKEN', JWT_MASTER_TOKEN
 }
 
 springBoot {
@@ -162,6 +163,7 @@ dependencies {
     compile group: 'org.springframework', name: 'spring-context', version: '5.+'
     // UTILS
     implementation "org.apache.commons:commons-lang3"
+    compile group: 'commons-io', name: 'commons-io', version: '2.6'
     compile 'commons-lang:commons-lang:2.3'
     compile "javax.cache:cache-api"
     implementation "javax.transaction:javax.transaction-api"
@@ -177,6 +179,8 @@ dependencies {
     // DATABASE
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"
     implementation "org.mariadb.jdbc:mariadb-java-client"
+    implementation "com.zaxxer:HikariCP"
+    testImplementation "com.h2database:h2"
     //
     // HIBERNATE
     annotationProcessor "org.hibernate:hibernate-jpamodelgen"
