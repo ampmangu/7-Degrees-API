@@ -1,5 +1,14 @@
 version: '2'
 services:
+  7degrees-app:
+    image: 7degrees
+    depends_on:
+      - 7degrees-mariadb
+      - 7degrees-redis
+    environment:
+      - _JAVA_OPTIONS=-Xmx512m -Xms256m
+      - SPRING_PROFILES_ACTIVE=dev
+      - "MOVIE_DB_API_KEY=${MOVIE_DB_API_KEY}"
   7degrees-mariadb:
     image: mariadb:10.3.7
     volumes:
@@ -14,8 +23,13 @@ services:
   7degrees-redis:
     tty: true
     image: redis:latest
-    command: redis-server --requirepass 73656775726f64656e74616c6c6973616e65636573697461756e6170617261746f
-    ports:
-      - "6378:6379"
+    command: redis-server /usr/local/etc/redis/redis.conf --requirepass 73656775726f64656e74616c6c6973616e65636573697461756e6170617261746f
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    expose:
+      - 6379
     environment:
       - pass=73656775726f64656e74616c6c6973616e65636573697461756e6170617261746f
+networks:
+  7degreesnet:
+    driver: bridge

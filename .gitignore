@@ -31,3 +31,6 @@ out/
 ### VS Code ###
 .vscode/
 target/**
+
+### Specific ###
+src/main/docker/.env
