@@ -9,6 +9,7 @@ import com.ampmangu.degrees.service.ActorDataService;
 import com.ampmangu.degrees.service.PersonRelationService;
 import com.ampmangu.degrees.service.PersonService;
 import com.ampmangu.degrees.utils.DegreeResponse;
+import com.ampmangu.degrees.web.rest.errors.BadRequestAlertException;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,6 +23,7 @@ import redis.clients.jedis.Jedis;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 
@@ -69,9 +71,14 @@ public class PersonResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/people")
-    public ResponseEntity<String> createPerson(@Valid @RequestBody String person) throws URISyntaxException {
+    public ResponseEntity<Person> createPerson(@Valid @RequestBody Person person) throws URISyntaxException {
         log.debug("REST request to save Person : {}", person);
-        throw new UnsupportedOperationException("Not implemented");
+        if (person.getId() != null) {
+            throw new BadRequestAlertException("A new person cannot have an ID already", "Person", "idexists");
+        }
+        Person result = personService.save(person);
+        return ResponseEntity.created(new URI("/api/people/" + result.getId()))
+                .body(result);
     }
 
     /**
