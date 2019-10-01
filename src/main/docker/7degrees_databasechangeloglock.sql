@@ -1,0 +1,1 @@
+INSERT INTO `7degrees`.databasechangeloglock (ID, LOCKED, LOCKGRANTED, LOCKEDBY) VALUES (1, false, null, null);
