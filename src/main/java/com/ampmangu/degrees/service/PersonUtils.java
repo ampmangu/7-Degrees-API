@@ -30,18 +30,24 @@ public class PersonUtils {
 
     public static void saveRelation(List<Person> actorDataList, PersonRelationService personRelationService, PersonService personService) {
         int position = 0;
+        int saved = 0;
         for (Person person : actorDataList) {
             List<Person> nextPersons = new ArrayList<>(actorDataList);
             nextPersons.remove(position);
             for (Person otherPerson : nextPersons) {
                 saveRelation(person, otherPerson, personRelationService, personService);
                 saveRelation(otherPerson, person, personRelationService, personService);
+                saved = saved + 1;
             }
             position = position + 1;
         }
+        log.info("Saved {} relations", saved);
     }
 
     private static void saveRelation(Person person, Person otherPerson, PersonRelationService personRelationService, PersonService personService) {
+        if (person.getName().equalsIgnoreCase(otherPerson.getName())) {
+            return;
+        }
         PersonRelation personRelation = new PersonRelation();
         personRelation.setLeftSidePerson(person);
         personRelation.setRightSidePerson(otherPerson);
@@ -89,6 +95,7 @@ public class PersonUtils {
                 DegreeResponseBuilder maps = degreeSeparationRec(person, rightSide, degree, builder);
                 if (maps.isEnded()) {
                     maps.addPerson(leftSide);
+                    //noinspection OptionalGetWithoutIsPresent
                     maps.addActorData(getMatch(leftSideId, person.getId()).get());
                     degreeResponseBuilder = maps;
                     break;
@@ -120,6 +127,7 @@ public class PersonUtils {
             for (Person person : personSet) {
                 responseBuilder = degreeSeparationRec(person, rightSide, degree, responseBuilder);
                 if (responseBuilder.isEnded()) {
+                    //noinspection OptionalGetWithoutIsPresent
                     ActorData localMatch = getMatch(leftSideId, person.getId()).get();
                     responseBuilder.addPerson(leftSide);
                     responseBuilder.addActorData(localMatch);

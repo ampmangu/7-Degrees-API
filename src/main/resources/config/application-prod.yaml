@@ -1,13 +1,13 @@
 spring:
   redis:
-    host: 127.0.0.1
+    host: 7degrees-redis
   application:
     name: 7degrees
   profiles:
-    active: dev
+    active: prod
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mariadb://localhost:3306/7degrees?useLegacyDatetimeCode=false&serverTimezone=UTC
+    url: jdbc:mariadb://7degrees-mariadb:3306/7degrees?useLegacyDatetimeCode=false&serverTimezone=UTC
     username: root
     password:
     hikari:

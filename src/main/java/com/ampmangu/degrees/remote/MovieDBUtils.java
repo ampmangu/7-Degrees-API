@@ -33,15 +33,16 @@ public class MovieDBUtils {
         return credits1;
     }
 
-    public static Person savePerson(PeopleDetail person, String name, PersonService personService, ActorDataService actorDataService) {
+    public static Person savePerson(PeopleDetail person, String name, String profilePath, PersonService personService, ActorDataService actorDataService) {
         if (personService.existsByRemoteId(person.getId())) {
-            return updateActor(person, name, personService, actorDataService);
+            return updateActor(person, personService, actorDataService);
         }
         Person personToSave = new Person();
         personToSave.setName(name);
         personToSave.setType(TypePerson.MOVIES);
         personToSave.setDateAdded(Instant.now());
         personToSave.setRemoteDbId(person.getId());
+        personToSave.setPicUrl(profilePath);
         Person savedPerson = personService.save(personToSave);
         List<ActorData> actorDataList = new ArrayList<>();
         for (Cast cast : person.getCast()) {
@@ -51,7 +52,7 @@ public class MovieDBUtils {
         return personService.save(savedPerson);
     }
 
-    private static Person updateActor(PeopleDetail person, String name, PersonService personService, ActorDataService actorDataService) {
+    private static Person updateActor(PeopleDetail person, PersonService personService, ActorDataService actorDataService) {
         Person actor = personService.findByRemoteId(person.getId()).get();
         List<ActorData> actorDataList = new ArrayList<>();
         for (Cast cast : person.getCast()) {
@@ -75,6 +76,9 @@ public class MovieDBUtils {
         }
         actorData.setPerson(actor);
         actorData.setRemoteDbId(cast.getId());
+        if(actor.getType()==TypePerson.MOVIES) {
+            actorData.setActorPicUrl(cast.getPosterPath());
+        }
         actorDataList.add(actorDataService.save(actorData));
     }
 }

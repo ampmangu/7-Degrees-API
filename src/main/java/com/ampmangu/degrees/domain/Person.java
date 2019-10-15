@@ -8,8 +8,8 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 @SuppressWarnings("ALL")
@@ -39,14 +39,17 @@ public class Person implements Serializable {
     @Column(name = "remote_db_id")
     private Integer remoteDbId;
 
+    @Column(name = "pic_url", nullable = true)
+    private String picUrl;
+
     @OneToMany(mappedBy = "leftSidePerson", cascade = {CascadeType.PERSIST, CascadeType.REFRESH},
             orphanRemoval = true, fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties(value = {"leftSidePerson", "rightSidePerson"})
-    private List<PersonRelation> relations;
+    private Set<PersonRelation> relations = new HashSet<>();
 
-    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL,
-            orphanRemoval = true)
+    @OneToMany(mappedBy = "person", cascade = {CascadeType.MERGE},
+            orphanRemoval = true, fetch = FetchType.EAGER, targetEntity = ActorData.class)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties("person")
     private List<ActorData> actorDataList;
@@ -83,11 +86,11 @@ public class Person implements Serializable {
         this.type = type;
     }
 
-    public List<PersonRelation> getRelations() {
+    public Set<PersonRelation> getRelations() {
         return relations;
     }
 
-    public void setRelations(List<PersonRelation> relations) {
+    public void setRelations(Set<PersonRelation> relations) {
         this.relations = relations;
     }
 
@@ -109,6 +112,19 @@ public class Person implements Serializable {
 
     public void setRemoteDbId(Integer remoteDbId) {
         this.remoteDbId = remoteDbId;
+    }
+
+    public String getPicUrl() {
+        return picUrl;
+    }
+
+    public void setPicUrl(String picUrl) {
+        if (this.getType()==TypePerson.MOVIES) {
+            this.picUrl = "https://image.tmdb.org/t/p/w45" + picUrl;
+            //TODO Add future picurl servers
+        } else {
+            this.picUrl = picUrl;
+        }
     }
 
     @Override
