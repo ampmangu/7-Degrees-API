@@ -72,7 +72,8 @@ public class PersonResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/people")
-    public ResponseEntity<Person> createPerson(@Valid @RequestBody Person person) throws URISyntaxException {
+    public ResponseEntity<Person> createPerson(@Valid @RequestBody Person person, @RequestHeader("auth-token") String token) throws URISyntaxException, InvalidKeyException {
+        checkToken(token);
         log.debug("REST request to save Person : {}", person);
         if (person.getId() != null) {
             throw new BadRequestAlertException("A new person cannot have an ID already", "Person", "idexists");

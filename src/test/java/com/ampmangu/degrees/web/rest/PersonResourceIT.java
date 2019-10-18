@@ -41,8 +41,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.ampmangu.degrees.config.Constants.JWT_MASTER_TOKEN;
 import static com.ampmangu.degrees.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -134,6 +136,7 @@ public class PersonResourceIT {
         person1.setId(null);
         assertThat(person1).hasFieldOrPropertyWithValue("id", null);
         restPersonMockMvc.perform(post("/api/people")
+                .header("auth-token", "unset")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(person1)))
                 .andExpect(status().isCreated());
@@ -174,6 +177,7 @@ public class PersonResourceIT {
         person1.setId(null);
         assertThat(person1).hasFieldOrPropertyWithValue("id", null);
         restPersonMockMvc.perform(post("/api/people")
+                .header("auth-token", "unset")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(person1)))
                 .andExpect(status().isCreated());
@@ -182,6 +186,7 @@ public class PersonResourceIT {
         person2.setId(null);
         assertThat(person2).hasFieldOrPropertyWithValue("id", null);
         restPersonMockMvc.perform(post("/api/people")
+                .header("auth-token", "unset")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(person2)))
                 .andExpect(status().isCreated());
@@ -203,6 +208,7 @@ public class PersonResourceIT {
         person1.setId(null);
         assertThat(person1).hasFieldOrPropertyWithValue("id", null);
         restPersonMockMvc.perform(post("/api/people")
+                .header("auth-token", "unset")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(person1)))
                 .andExpect(status().isCreated());
@@ -211,6 +217,7 @@ public class PersonResourceIT {
         person2.setId(null);
         assertThat(person2).hasFieldOrPropertyWithValue("id", null);
         restPersonMockMvc.perform(post("/api/people")
+                .header("auth-token", "unset")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(person2)))
                 .andExpect(status().isCreated());
@@ -238,6 +245,7 @@ public class PersonResourceIT {
         person1.setId(null);
         assertThat(person1).hasFieldOrPropertyWithValue("id", null);
         restPersonMockMvc.perform(post("/api/people")
+                .header("auth-token", "unset")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(person1)))
                 .andExpect(status().isCreated());
@@ -246,12 +254,14 @@ public class PersonResourceIT {
         person2.setId(null);
         assertThat(person2).hasFieldOrPropertyWithValue("id", null);
         restPersonMockMvc.perform(post("/api/people")
+                .header("auth-token", "unset")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(person2)))
                 .andExpect(status().isCreated());
         List<Person> personList = personRepository.findAll();
         assertThat(personList).hasSize(databaseSizeBeforeCreate + 2);
-        restPersonMockMvc.perform(get("/api/people/actor/{name1}/{name2}", person1.getName(), person2.getName()))
+        restPersonMockMvc.perform(get("/api/people/actor/{name1}/{name2}", person1.getName(), person2.getName())
+                .header("auth-token", "unset"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.degrees").value(1))
@@ -269,12 +279,14 @@ public class PersonResourceIT {
         person1.setId(null);
         assertThat(person1).hasFieldOrPropertyWithValue("id", null);
         restPersonMockMvc.perform(post("/api/people")
+                .header("auth-token", "unset")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(person1)))
                 .andExpect(status().isCreated());
         List<Person> personList = personRepository.findAll();
         assertThat(personList).hasSize(databaseSizeBeforeCreate + 1);
-        restPersonMockMvc.perform(get("/api/people/actor/{name1}/{name2}", person1.getName(), person1.getName()))
+        restPersonMockMvc.perform(get("/api/people/actor/{name1}/{name2}", person1.getName(), person1.getName())
+                .header("auth-token", "unset"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.degrees").value(0))
