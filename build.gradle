@@ -15,7 +15,7 @@ buildscript {
 }
 plugins {
     id 'org.asciidoctor.convert' version '1.5.3'
-    id 'org.springframework.boot' version '2.1.7.RELEASE'
+    id 'org.springframework.boot' version '2.1.9.RELEASE'
     id 'java'
     id "maven"
     id "idea"
@@ -157,10 +157,12 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
     implementation "org.springframework.boot:spring-boot-starter-actuator"
-    compile group: 'org.springframework', name: 'spring-beans', version: '5.+'
-    compile group: 'org.springframework', name: 'spring-orm', version: '5.+'
-    compile group: 'org.springframework', name: 'spring-jdbc', version: '5.+'
-    compile group: 'org.springframework', name: 'spring-context', version: '5.+'
+    compile group: 'org.springframework', name: 'spring-beans', version: '5.1.7.RELEASE'
+    compile group: 'org.springframework', name: 'spring-orm', version: '5.1.7.RELEASE'
+    compile group: 'org.springframework', name: 'spring-jdbc', version: '5.1.7.RELEASE'
+    compile group: 'org.springframework', name: 'spring-context', version: '5.1.7.RELEASE'
+    compile group: 'org.springframework', name: 'spring-core', version: '5.1.7.RELEASE'
+
     // UTILS
     implementation "org.apache.commons:commons-lang3"
     compile group: 'commons-io', name: 'commons-io', version: '2.6'
@@ -177,7 +179,7 @@ dependencies {
 
     //
     // DATABASE
-    implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa:2.1.7.RELEASE"
     implementation "org.mariadb.jdbc:mariadb-java-client"
     implementation "com.zaxxer:HikariCP"
     testImplementation "com.h2database:h2"
