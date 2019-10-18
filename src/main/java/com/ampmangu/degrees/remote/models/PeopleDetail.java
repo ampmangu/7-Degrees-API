@@ -4,6 +4,7 @@ package com.ampmangu.degrees.remote.models;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PeopleDetail {
@@ -26,8 +27,17 @@ public class PeopleDetail {
         this.cast = cast;
     }
 
-    public void addCast(List<Cast> cast) {
-        this.cast.addAll(cast);
+    public void addCast(List<CastTv> cast) {
+        List<Cast> convertedCastList = new ArrayList<>();
+        cast.forEach(c -> {
+            Cast convertedCast = new Cast();
+            convertedCast.setTitle(c.getName());
+            convertedCast.setOriginalTitle(c.getOriginalName());
+            convertedCast.setPosterPath(c.getPosterPath());
+            convertedCast.setId(c.getId());
+            convertedCastList.add(convertedCast);
+        });
+        this.cast.addAll(convertedCastList);
     }
 
     public List<Crew> getCrew() {
