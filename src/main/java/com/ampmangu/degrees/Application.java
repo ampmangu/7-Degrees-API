@@ -25,7 +25,7 @@ public class Application implements InitializingBean {
 
     private final Environment env;
 
-    private static String API_KEY;
+    public static String API_KEY;
     public static String MASTER_TOKEN;
 
     public Application(Environment env) {
