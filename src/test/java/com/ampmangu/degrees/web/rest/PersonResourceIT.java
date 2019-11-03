@@ -41,10 +41,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.ampmangu.degrees.config.Constants.JWT_MASTER_TOKEN;
 import static com.ampmangu.degrees.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;

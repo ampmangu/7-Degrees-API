@@ -6,11 +6,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.List;
 
 public class DegreeResponse {
-    public DegreeResponsePerson from;
-    public DegreeResponsePerson to;
+    private DegreeResponsePerson from;
+    private DegreeResponsePerson to;
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    private
     Integer degrees;
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    private
     List<DegreeResponse> people;
 
     public DegreeResponse(Person from, Person to, Integer degrees) {

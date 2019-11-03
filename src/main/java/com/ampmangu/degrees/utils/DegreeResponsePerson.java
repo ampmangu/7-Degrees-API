@@ -2,8 +2,8 @@ package com.ampmangu.degrees.utils;
 
 public class DegreeResponsePerson {
 
-    public Long id;
-    public String name;
+    private Long id;
+    private String name;
 
     public DegreeResponsePerson(Long id, String name) {
         this.id = id;

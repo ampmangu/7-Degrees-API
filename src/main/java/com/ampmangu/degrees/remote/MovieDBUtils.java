@@ -13,6 +13,7 @@ import io.reactivex.Observable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 public class MovieDBUtils {
@@ -53,16 +54,19 @@ public class MovieDBUtils {
     }
 
     private static Person updateActor(PeopleDetail person, PersonService personService, ActorDataService actorDataService) {
-        Person actor = personService.findByRemoteId(person.getId()).get();
-        List<ActorData> actorDataList = new ArrayList<>();
-        for (Cast cast : person.getCast()) {
-            if (actorDataService.findByPersonAndRemoteId(actor.getId(), cast.getId()).isPresent()) {
-                continue;
-            } else {
-                addActorData(actorDataService, actor, actorDataList, cast);
+        Optional<Person> optionalPerson = personService.findByRemoteId(person.getId());
+        if (optionalPerson.isPresent()) {
+            Person actor = optionalPerson.get();
+            List<ActorData> actorDataList = new ArrayList<>();
+            for (Cast cast : person.getCast()) {
+                if (!actorDataService.findByPersonAndRemoteId(actor.getId(), cast.getId()).isPresent()) {
+                    addActorData(actorDataService, actor, actorDataList, cast);
+                }
             }
+            return actor;
+        } else {
+            return new Person();
         }
-        return actor;
     }
 
     private static void addActorData(ActorDataService actorDataService, Person actor, List<ActorData> actorDataList, Cast cast) {
@@ -76,7 +80,7 @@ public class MovieDBUtils {
         }
         actorData.setPerson(actor);
         actorData.setRemoteDbId(cast.getId());
-        if(actor.getType()==TypePerson.MOVIES) {
+        if (actor.getType() == TypePerson.MOVIES) {
             actorData.setActorPicUrl(cast.getPosterPath());
         }
         actorDataList.add(actorDataService.save(actorData));

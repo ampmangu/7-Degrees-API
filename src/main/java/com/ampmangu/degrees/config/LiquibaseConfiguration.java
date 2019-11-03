@@ -18,8 +18,10 @@ public class LiquibaseConfiguration {
 
     private final Logger log = LoggerFactory.getLogger(LiquibaseConfiguration.class);
 
+    @SuppressWarnings("FieldCanBeLocal")
     private final Environment env;
 
+    @SuppressWarnings("FieldCanBeLocal")
     private final CacheManager cacheManager;
 
     public LiquibaseConfiguration(Environment env, CacheManager cacheManager) {

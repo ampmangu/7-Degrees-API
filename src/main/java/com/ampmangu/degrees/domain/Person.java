@@ -120,7 +120,7 @@ public class Person implements Serializable {
     }
 
     public void setPicUrl(String picUrl) {
-        if (this.getType()==TypePerson.MOVIES) {
+        if (this.getType() == TypePerson.MOVIES) {
             this.picUrl = "https://image.tmdb.org/t/p/w45" + picUrl;
             //TODO Add future picurl servers
         } else {
