@@ -7,10 +7,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class DegreeResponseBuilder {
-    public boolean ended;
-    public List<Person> personList;
-    public List<ActorData> actorDataList;
-    public List<Person> filter;
+    private boolean ended;
+    private List<Person> personList;
+    private List<ActorData> actorDataList;
+    private List<Person> filter;
 
     public DegreeResponseBuilder() {
         this.ended = false;

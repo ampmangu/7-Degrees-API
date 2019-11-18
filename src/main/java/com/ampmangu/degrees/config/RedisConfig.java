@@ -10,6 +10,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
+@SuppressWarnings("FieldCanBeLocal")
 @Configuration
 public class RedisConfig {
     private final Logger log = LoggerFactory.getLogger(RedisConfig.class);

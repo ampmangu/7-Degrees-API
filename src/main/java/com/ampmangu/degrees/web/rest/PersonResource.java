@@ -72,7 +72,8 @@ public class PersonResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/people")
-    public ResponseEntity<Person> createPerson(@Valid @RequestBody Person person) throws URISyntaxException {
+    public ResponseEntity<Person> createPerson(@Valid @RequestBody Person person, @RequestHeader("auth-token") String token) throws URISyntaxException, InvalidKeyException {
+        checkToken(token);
         log.debug("REST request to save Person : {}", person);
         if (person.getId() != null) {
             throw new BadRequestAlertException("A new person cannot have an ID already", "Person", "idexists");
@@ -131,14 +132,14 @@ public class PersonResource {
         return idToTraverse;
     }
 
-    @GetMapping("/people/actor/{name1}/{name2}")
+    @GetMapping("/people/actor/{fromName}/{toName}")
     @ResponseBody
-    public ResponseEntity<DegreeResponse> getDegrees(@PathVariable String name1, @PathVariable String name2, @RequestHeader("auth-token") String token) throws InvalidKeyException {
+    public ResponseEntity<DegreeResponse> getDegrees(@PathVariable String fromName, @PathVariable String toName, @RequestHeader("auth-token") String token) throws InvalidKeyException {
         //We either ensure having it or getting it fresh
         checkToken(token);
-        ResponseEntity<Person> firstResponseEntity = getPerson(name1, token);
+        ResponseEntity<Person> firstResponseEntity = getPerson(fromName, token);
         Person firstPerson = firstResponseEntity.getBody();
-        ResponseEntity<Person> secondResponseEntity = getPerson(name2, token);
+        ResponseEntity<Person> secondResponseEntity = getPerson(toName, token);
         Person secondPerson = secondResponseEntity.getBody();
         if (firstPerson.getName().equalsIgnoreCase(secondPerson.getName())) {
             return ResponseEntity.ok().body(new DegreeResponse(firstPerson, firstPerson, 0));

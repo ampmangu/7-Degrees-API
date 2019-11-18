@@ -134,6 +134,7 @@ public class PersonResourceIT {
         person1.setId(null);
         assertThat(person1).hasFieldOrPropertyWithValue("id", null);
         restPersonMockMvc.perform(post("/api/people")
+                .header("auth-token", "unset")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(person1)))
                 .andExpect(status().isCreated());
@@ -174,6 +175,7 @@ public class PersonResourceIT {
         person1.setId(null);
         assertThat(person1).hasFieldOrPropertyWithValue("id", null);
         restPersonMockMvc.perform(post("/api/people")
+                .header("auth-token", "unset")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(person1)))
                 .andExpect(status().isCreated());
@@ -182,6 +184,7 @@ public class PersonResourceIT {
         person2.setId(null);
         assertThat(person2).hasFieldOrPropertyWithValue("id", null);
         restPersonMockMvc.perform(post("/api/people")
+                .header("auth-token", "unset")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(person2)))
                 .andExpect(status().isCreated());
@@ -203,6 +206,7 @@ public class PersonResourceIT {
         person1.setId(null);
         assertThat(person1).hasFieldOrPropertyWithValue("id", null);
         restPersonMockMvc.perform(post("/api/people")
+                .header("auth-token", "unset")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(person1)))
                 .andExpect(status().isCreated());
@@ -211,6 +215,7 @@ public class PersonResourceIT {
         person2.setId(null);
         assertThat(person2).hasFieldOrPropertyWithValue("id", null);
         restPersonMockMvc.perform(post("/api/people")
+                .header("auth-token", "unset")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(person2)))
                 .andExpect(status().isCreated());
@@ -238,6 +243,7 @@ public class PersonResourceIT {
         person1.setId(null);
         assertThat(person1).hasFieldOrPropertyWithValue("id", null);
         restPersonMockMvc.perform(post("/api/people")
+                .header("auth-token", "unset")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(person1)))
                 .andExpect(status().isCreated());
@@ -246,12 +252,14 @@ public class PersonResourceIT {
         person2.setId(null);
         assertThat(person2).hasFieldOrPropertyWithValue("id", null);
         restPersonMockMvc.perform(post("/api/people")
+                .header("auth-token", "unset")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(person2)))
                 .andExpect(status().isCreated());
         List<Person> personList = personRepository.findAll();
         assertThat(personList).hasSize(databaseSizeBeforeCreate + 2);
-        restPersonMockMvc.perform(get("/api/people/actor/{name1}/{name2}", person1.getName(), person2.getName()))
+        restPersonMockMvc.perform(get("/api/people/actor/{name1}/{name2}", person1.getName(), person2.getName())
+                .header("auth-token", "unset"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.degrees").value(1))
@@ -269,12 +277,14 @@ public class PersonResourceIT {
         person1.setId(null);
         assertThat(person1).hasFieldOrPropertyWithValue("id", null);
         restPersonMockMvc.perform(post("/api/people")
+                .header("auth-token", "unset")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(person1)))
                 .andExpect(status().isCreated());
         List<Person> personList = personRepository.findAll();
         assertThat(personList).hasSize(databaseSizeBeforeCreate + 1);
-        restPersonMockMvc.perform(get("/api/people/actor/{name1}/{name2}", person1.getName(), person1.getName()))
+        restPersonMockMvc.perform(get("/api/people/actor/{name1}/{name2}", person1.getName(), person1.getName())
+                .header("auth-token", "unset"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.degrees").value(0))

@@ -10,7 +10,7 @@ public class PeopleDetailTv {
 
     @SerializedName("cast")
     @Expose
-    private List<Cast> cast = null;
+    private List<CastTv> cast = null;
     @SerializedName("crew")
     @Expose
     private List<Crew> crew = null;
@@ -18,15 +18,15 @@ public class PeopleDetailTv {
     @Expose
     private Integer id;
 
-    public List<Cast> getCast() {
+    public List<CastTv> getCast() {
         return cast;
     }
 
-    public void setCast(List<Cast> cast) {
+    public void setCast(List<CastTv> cast) {
         this.cast = cast;
     }
 
-    public void addCast(List<Cast> cast) {
+    public void addCast(List<CastTv> cast) {
         this.cast.addAll(cast);
     }
 

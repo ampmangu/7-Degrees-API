@@ -94,9 +94,11 @@ public class ActorData implements Serializable {
     public void setPicUrl(String picUrl) {
         this.picUrl = picUrl;
     }
+
     public void setActorPicUrl(String picUrl) {
-            this.picUrl = "https://image.tmdb.org/t/p/w45" + picUrl;
+        this.picUrl = "https://image.tmdb.org/t/p/w45" + picUrl;
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
