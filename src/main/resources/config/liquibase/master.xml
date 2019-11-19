@@ -73,5 +73,44 @@
             </column>
         </addColumn>
     </changeSet>
+    <changeSet author="adrian (generated)" id="1566235943799-10">
+        <createTable tableName="media">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="mediaPK"/>
+            </column>
+            <column name="remote_db_id" type="INT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_added" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="adrian (generated)" id="1566235943799-11">
+        <createTable tableName="media_relation">
+            <column name="media_id" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="person_id" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="person_id, media_id" tableName="media_relation"/>
 
+    </changeSet>
+
+    <changeSet author="adrian (generated)" id="1566235943799-12">
+        <addForeignKeyConstraint baseColumnNames="person_id" baseTableName="media_relation"
+                                 constraintName="personSideConstraint" deferrable="false" initiallyDeferred="false"
+                                 referencedColumnNames="id" referencedTableName="person" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="media_id" baseTableName="media_relation"
+                                 constraintName="mediaSideConstraint" deferrable="false" initiallyDeferred="false"
+                                 referencedColumnNames="id" referencedTableName="media" validate="true"/>
+    </changeSet>
 </databaseChangeLog>

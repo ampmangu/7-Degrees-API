@@ -55,6 +55,13 @@ public class Person implements Serializable {
     @JsonIgnoreProperties("person")
     private List<ActorData> actorDataList;
 
+    @ManyToMany
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    @JoinTable(name = "media_relation",
+            joinColumns = @JoinColumn(name = "media_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "person_id", referencedColumnName = "id"))
+    private Set<Media> mediaIn = new HashSet<>();
+
     public Long getId() {
         return id;
     }
@@ -126,6 +133,13 @@ public class Person implements Serializable {
         } else {
             this.picUrl = picUrl;
         }
+    }
+    public Set<Media> getMediaIn() {
+        return mediaIn;
+    }
+
+    public void setMediaIn(Set<Media> mediaIn) {
+        this.mediaIn = mediaIn;
     }
 
     @Override
