@@ -37,7 +37,7 @@ public class Media implements Serializable {
     @Column(name = "name", nullable = false)
     private String name;
     //add the mapped by
-    @ManyToMany (mappedBy = "mediaIn")
+    @ManyToMany (mappedBy = "mediaIn", fetch = FetchType.LAZY)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnore
     private Set<Person> personsIn = new HashSet<>();

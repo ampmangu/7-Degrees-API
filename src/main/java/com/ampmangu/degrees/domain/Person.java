@@ -1,5 +1,6 @@
 package com.ampmangu.degrees.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -55,11 +56,12 @@ public class Person implements Serializable {
     @JsonIgnoreProperties("person")
     private List<ActorData> actorDataList;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JoinTable(name = "media_relation",
-            joinColumns = @JoinColumn(name = "media_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "person_id", referencedColumnName = "id"))
+            joinColumns = @JoinColumn(name = "person_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "media_id", referencedColumnName = "id"))
+    @JsonIgnore
     private Set<Media> mediaIn = new HashSet<>();
 
     public Long getId() {
@@ -142,6 +144,10 @@ public class Person implements Serializable {
         this.mediaIn = mediaIn;
     }
 
+
+    public void addMediaIn(Media mediaIn) {
+        this.mediaIn.add(mediaIn);
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

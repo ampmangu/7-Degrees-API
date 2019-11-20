@@ -13,6 +13,7 @@ import io.reactivex.Observable;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class MovieDBUtils {
@@ -67,6 +68,10 @@ public class MovieDBUtils {
             addMoviePerson(cast, personSet, personService);
         }
         savedMedia.setPersonsIn(personSet);
+        personSet.stream().filter(Objects::nonNull).collect(Collectors.toSet()).forEach(person -> {
+            person.addMediaIn(savedMedia);
+            personService.save(person);
+        });
         return mediaService.save(savedMedia);
     }
 
@@ -75,6 +80,7 @@ public class MovieDBUtils {
         person.setRemoteDbId(cast.getId());
         person.setName(cast.getName());
         person.setDateAdded(Instant.now());
+        person.setType(TypePerson.MOVIES);
         if (cast.getProfilePath() instanceof String) {
             person.setPicUrl((String) cast.getProfilePath());
         }
