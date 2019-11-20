@@ -22,8 +22,11 @@ import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.ampmangu.degrees.remote.MovieDBUtils.saveMovie;
 import static com.ampmangu.degrees.security.SecurityUtils.checkToken;
@@ -72,7 +75,7 @@ public class MediaResource {
     private ResponseEntity<Media> getMedia(@PathVariable String name, @RequestHeader("auth-token") String token) throws InvalidKeyException {
         checkToken(token);
         String mediaCached = jedisClient.get(name.toUpperCase());
-        if (mediaCached != null && !mediaCached.isEmpty()) {
+        if (mediaCached != null && mediaCached.isEmpty()) {
             Media media;
             try {
                 media = mapper.readValue(mediaCached, Media.class);
@@ -95,27 +98,28 @@ public class MediaResource {
     private Media getMediaFromProvider(String name) {
         Optional<Media> optionalMedia = mediaService.findByName(name);
         if (!optionalMedia.isPresent()) {
-            final MovieResult[] result = {new MovieResult()};
+            final List<MovieResult> [] movieListResult = new List[]{null};
             Observable<MovieList> movieListObservable = movieDBService.getMovieList(name);
-            movieListObservable.subscribe(movieList -> movieList.getResults().stream().filter(movieResult -> movieResult.getPopularity() != null).max(Comparator.comparing(MovieResult::getPopularity)).ifPresent(movieResult -> result[0] = movieResult));
+            movieListObservable.subscribe(movieList -> movieListResult[0] = movieList.getResults().stream().filter(movieResult -> movieResult.getPopularity() != null).collect(Collectors.toList()));
+            MovieResult result = decideMovieResult(movieListResult[0], name);
             Observable<TvList> tvListObservable = movieDBService.getTvList(name);
             final TvResult[] tvInfoResult = {new TvResult()};
             tvListObservable.subscribe(tvList -> tvList.getResults().stream().filter(tvResult -> tvResult.getPopularity() != null).max(Comparator.comparing(TvResult::getPopularity)).ifPresent(tvResult -> tvInfoResult[0] = tvResult));
             double moviePopularity = 0.0d;
             double tvPopularity = 0.0d;
-            if (result[0] != null && result[0].getPopularity() != null) {
-                moviePopularity = result[0].getPopularity();
+            if (result != null && result.getPopularity() != null) {
+                moviePopularity = result.getPopularity();
             }
             if (tvInfoResult[0] != null && tvInfoResult[0].getPopularity() != null) {
                 tvPopularity = tvInfoResult[0].getPopularity();
             }
             if (moviePopularity > tvPopularity) {
-                Observable<MovieCast> movieResultObservable = movieDBService.getMovieCast(result[0].getId());
+                Observable<MovieCast> movieResultObservable = movieDBService.getMovieCast(result.getId());
                 final MovieCast[] castResult = {new MovieCast()};
                 movieResultObservable.subscribe(movieCast -> castResult[0] = movieCast);
-                String mediaName = result[0].getTitle();
+                String mediaName = result.getTitle();
                 if (mediaName == null || mediaName.equalsIgnoreCase("")) {
-                    mediaName = result[0].getOriginalTitle();
+                    mediaName = result.getOriginalTitle();
                 }
                 Media media = saveMovie(castResult[0], mediaName, mediaService, personService);
                 try {
@@ -133,6 +137,16 @@ public class MediaResource {
             }
         }
         return optionalMedia.get();
+    }
+
+    private MovieResult decideMovieResult(List<MovieResult> movieResults, String name) {
+        Optional<MovieResult> optionalMax = movieResults.stream().max(Comparator.comparing(MovieResult::getPopularity));
+        List<MovieResult> listSimilarNames = movieResults.stream().filter(movieResult -> movieResult.getTitle() != null && movieResult.getTitle().toUpperCase().contains(name.toUpperCase())).collect(Collectors.toList());
+        Optional<MovieResult> optionalMaxByName = Optional.empty();
+        if (!listSimilarNames.isEmpty()) {
+            optionalMaxByName = listSimilarNames.stream().max(Comparator.comparing(MovieResult::getPopularity));
+        }
+        return optionalMaxByName.orElseGet(() -> optionalMax.orElseGet(MovieResult::new));
     }
 
 }
