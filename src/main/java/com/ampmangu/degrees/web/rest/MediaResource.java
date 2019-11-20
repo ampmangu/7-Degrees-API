@@ -103,10 +103,10 @@ public class MediaResource {
             tvListObservable.subscribe(tvList -> tvList.getResults().stream().filter(tvResult -> tvResult.getPopularity() != null).max(Comparator.comparing(TvResult::getPopularity)).ifPresent(tvResult -> tvInfoResult[0] = tvResult));
             double moviePopularity = 0.0d;
             double tvPopularity = 0.0d;
-            if (result[0] != null) {
+            if (result[0] != null && result[0].getPopularity() != null) {
                 moviePopularity = result[0].getPopularity();
             }
-            if (tvInfoResult[0] != null) {
+            if (tvInfoResult[0] != null && tvInfoResult[0].getPopularity() != null) {
                 tvPopularity = tvInfoResult[0].getPopularity();
             }
             if (moviePopularity > tvPopularity) {
