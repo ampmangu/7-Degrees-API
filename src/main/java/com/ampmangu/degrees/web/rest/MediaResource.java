@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.ampmangu.degrees.remote.MovieDBUtils.saveMovie;
+import static com.ampmangu.degrees.remote.MovieDBUtils.saveTv;
 import static com.ampmangu.degrees.security.SecurityUtils.checkToken;
 import static org.apache.commons.lang3.StringUtils.stripAccents;
 
@@ -113,30 +114,52 @@ public class MediaResource {
             if (tvInfoResult[0] != null && tvInfoResult[0].getPopularity() != null) {
                 tvPopularity = tvInfoResult[0].getPopularity();
             }
-            if (moviePopularity > tvPopularity) {
-                Observable<MovieCast> movieResultObservable = movieDBService.getMovieCast(result.getId());
-                final MovieCast[] castResult = {new MovieCast()};
-                movieResultObservable.subscribe(movieCast -> castResult[0] = movieCast);
-                String mediaName = result.getTitle();
-                if (mediaName == null || mediaName.equalsIgnoreCase("")) {
-                    mediaName = result.getOriginalTitle();
-                }
-                Media media = saveMovie(castResult[0], mediaName, mediaService, personService);
-                try {
-                    String savedName = stripAccents(mediaName.toUpperCase());
-                    log.info("Saving in cache {} ", savedName);
-                    setAndExpire(media, savedName);
-                    setAndExpire(media, name.toUpperCase());
-                }catch (JsonProcessingException ex) {
-                    log.warn("Couldn't save in redis user of id " + media.getId(), ex);
-                }
-                return media;
-            } else {
-                Observable<TvInfo> tvCastObservable = movieDBService.getTvCast(tvInfoResult[0].getId());
-
+            if (moviePopularity > tvPopularity && result != null) {
+                return getMovieMedia(name, result);
+            } else if (tvInfoResult[0] != null){
+                return getTvMedia(name, tvInfoResult[0]);
             }
         }
         return optionalMedia.get();
+    }
+
+    private Media getTvMedia(String name, TvResult result) {
+        Observable<TvInfo> tvCastObservable = movieDBService.getTvCast(result.getId());
+        final TvInfo[] castResult = {new TvInfo()};
+        tvCastObservable.subscribe(tvInfo -> castResult[0] = tvInfo);
+        TvInfo tvResult = castResult[0];
+        String mediaName = result.getName();
+        if (mediaName == null || mediaName.equalsIgnoreCase("")) {
+            mediaName = result.getOriginalName();
+        }
+        Media media = saveTv(tvResult, mediaName, mediaService, personService);
+        return saveCachedMedia(name, mediaName, media);
+    }
+
+
+
+    private Media getMovieMedia(String name, MovieResult result) {
+        Observable<MovieCast> movieResultObservable = movieDBService.getMovieCast(result.getId());
+        final MovieCast[] castResult = {new MovieCast()};
+        movieResultObservable.subscribe(movieCast -> castResult[0] = movieCast);
+        String mediaName = result.getTitle();
+        if (mediaName == null || mediaName.equalsIgnoreCase("")) {
+            mediaName = result.getOriginalTitle();
+        }
+        Media media = saveMovie(castResult[0], mediaName, mediaService, personService);
+        return saveCachedMedia(name, mediaName, media);
+    }
+
+    private Media saveCachedMedia(String name, String mediaName, Media media) {
+        try {
+            String savedName = stripAccents(mediaName.toUpperCase());
+            log.info("Saving in cache {} ", savedName);
+            setAndExpire(media, savedName);
+            setAndExpire(media, name.toUpperCase());
+        }catch (JsonProcessingException ex) {
+            log.warn("Couldn't save in redis user of id " + media.getId(), ex);
+        }
+        return media;
     }
 
     private MovieResult decideMovieResult(List<MovieResult> movieResults, String name) {

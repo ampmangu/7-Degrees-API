@@ -5,6 +5,7 @@ import com.ampmangu.degrees.remote.models.Cast;
 import com.ampmangu.degrees.remote.models.PeopleDetail;
 import com.ampmangu.degrees.remote.models.PeopleDetailTv;
 import com.ampmangu.degrees.remote.models.media.MovieCast;
+import com.ampmangu.degrees.remote.models.media.TvCast;
 import com.ampmangu.degrees.remote.models.media.TvInfo;
 import com.ampmangu.degrees.service.ActorDataService;
 import com.ampmangu.degrees.service.MediaService;
@@ -75,18 +76,67 @@ public class MovieDBUtils {
         return mediaService.save(savedMedia);
     }
 
-    private static void addMoviePerson(TvInfo.Cast cast, Set<Person> personSet, PersonService personService) {
-        Person person = new Person();
-        person.setRemoteDbId(cast.getId());
-        person.setName(cast.getName());
-        person.setDateAdded(Instant.now());
-        person.setType(TypePerson.MOVIES);
-        if (cast.getProfilePath() instanceof String) {
-            person.setPicUrl((String) cast.getProfilePath());
+    public static Media saveTv(TvInfo tvInfo, String mediaName, MediaService mediaService, PersonService personService) {
+        if (mediaService.existsByRemoteId(tvInfo.getId())) {
+            return updateTv(tvInfo, mediaService, personService);
         }
+        Media media = new Media();
+        media.setName(mediaName);
+        media.setType(TypeMedia.TV);
+        media.setDateAdded(Instant.now());
+        media.setRemoteDbId(tvInfo.getId());
+        Media savedMedia = mediaService.save(media);
+        Set<Person> personSet = new HashSet<>();
+        for (TvCast cast: tvInfo.getCast()) {
+            addTvPerson(cast, personSet, personService);
+        }
+        savedMedia.setPersonsIn(personSet);
+        personSet.stream().filter(Objects::nonNull).collect(Collectors.toSet()).forEach(person -> {
+            person.addMediaIn(savedMedia);
+            personService.save(person);
+        });
+        return mediaService.save(savedMedia);
+    }
+
+    private static void addTvPerson(TvCast cast, Set<Person> personSet, PersonService personService) {
+        Person person = saveMediaPerson(cast.getId(), cast.getName(), cast.getProfilePath());
         personSet.add(personService.save(person));
     }
 
+    private static Media updateTv(TvInfo tvInfo, MediaService mediaService, PersonService personService) {
+        Optional<Media> optionalMedia = mediaService.findByRemoteId(tvInfo.getId());
+        if (optionalMedia.isPresent()) {
+            Media media = optionalMedia.get();
+            Set<Person> personSet = new HashSet<>();
+            for (TvCast cast: tvInfo.getCast()) {
+                if (!personService.findByRemoteId(cast.getId()).isPresent()) {
+                    addTvPerson(cast, personSet, personService);
+                }
+            }
+            return media;
+        } else {
+            return new Media();
+        }
+    }
+
+    private static void addMoviePerson(TvInfo.Cast cast, Set<Person> personSet, PersonService personService) {
+        String profilePath = "_";
+        if (cast.getProfilePath() instanceof String) {
+            profilePath = ((String) cast.getProfilePath());
+        }
+        Person person = saveMediaPerson(cast.getId(), cast.getName(), profilePath);
+        personSet.add(personService.save(person));
+    }
+
+    private static Person saveMediaPerson(Integer remoteDbId, String name, String profilePath) {
+        Person person = new Person();
+        person.setRemoteDbId(remoteDbId);
+        person.setName(name);
+        person.setDateAdded(Instant.now());
+        person.setType(TypePerson.MOVIES);
+        person.setPicUrl(profilePath);
+        return person;
+    }
     private static Media updateMovie(MovieCast movieCast, MediaService mediaService, PersonService personService) {
         Optional<Media> optionalMedia = mediaService.findByRemoteId(movieCast.getId());
         if (optionalMedia.isPresent()) {

@@ -32,7 +32,7 @@ public interface MovieDBService {
     @GET("search/tv")
     Observable<TvList> getTvList(@Query("query") String name);
 
-    @GET("/tv/{tv_id}/credits")
+    @GET("tv/{tv_id}/credits")
     Observable<TvInfo> getTvCast(@Path("tv_id") Integer id);
 
 }
